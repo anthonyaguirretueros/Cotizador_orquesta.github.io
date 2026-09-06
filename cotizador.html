@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cotizador Orquesta la super tropicalk</title>
+    <!-- PWA & Mobile Meta Tags -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CotizaMusic">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3293/3293810.png">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf.js for exporting PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fffbe1',
+                            100: '#fff3b8',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            900: '#78350f',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
+            .print-card { box-shadow: none !important; border: none !important; background: white !important; color: black !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950">
+
+    <!-- Header Navigation -->
+    <header class="no-print border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none text-white">CotizaMusic <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-medium">Pro</span></h1>
+                    <p class="text-xs text-slate-400">Cotizador para Orquesta (3 y 4 Integrantes)</p>
+                </div>
+            </div>
+
+            <!-- Install PWA Button & Tabs -->
+            <div class="flex items-center space-x-2">
+                <button id="btn-install-pwa" onclick="installApp()" class="hidden px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition shadow-lg items-center gap-1.5 animate-pulse">
+                    <i class="fa-solid fa-download"></i> Instalar App
+                </button>
+                <button onclick="switchTab('editor')" id="btn-tab-editor" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition bg-amber-500 text-slate-950 shadow-md">
+                    <i class="fa-solid fa-calculator mr-1"></i> Cotizar
+                </button>
+                <button onclick="switchTab('presets')" id="btn-tab-presets" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-sliders mr-1"></i> Tarifas
+                </button>
+                <button onclick="switchTab('history')" id="btn-tab-history" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-clock-rotate-left mr-1"></i> Historial
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- App Installation Banner for iOS / Mobile -->
+    <div id="ios-install-banner" class="no-print bg-amber-500/10 border-b border-amber-500/30 px-4 py-2 text-xs text-amber-300 flex items-center justify-between">
+        <span class="flex items-center gap-2">
+            <i class="fa-solid fa-mobile-screen-button text-base"></i>
+            <span>Para instalar en tu celular: presiona <strong>Compartir <i class="fa-solid fa-arrow-up-from-bracket"></i></strong> y luego <strong>"Agregar a inicio"</strong>.</span>
+        </span>
+        <button onclick="document.getElementById('ios-install-banner').remove()" class="text-slate-400 hover:text-white ml-2 p-1">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8">
+        
+        <!-- Toast Notification Box -->
+        <div id="toast" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none bg-slate-800 text-white border border-slate-700 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3">
+            <span id="toast-icon" class="text-amber-400"><i class="fa-solid fa-circle-check text-lg"></i></span>
+            <span id="toast-message" class="text-sm font-medium">Notificación</span>
+        </div>
+
+        <!-- ================= TAB 1: COTIZADOR ================= -->
+        <div id="tab-editor" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Panel: Data Inputs & Calculator (7 Cols) -->
+            <div class="lg:col-span-7 space-y-5 no-print">
+
+                <!-- Step 1: Información General del Evento -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">1</span>
+                            <h2 class="font-bold text-slate-200 text-sm sm:text-base">Datos del Cliente y Evento</h2>
+                        </div>
+                        <button onclick="loadDemoData()" class="text-xs text-amber-400 hover:underline flex items-center gap-1">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Ejemplo
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nombre del Cliente</label>
+                            <input type="text" id="client-name" placeholder="Ej: Carlos Mendoza" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Tipo de Evento</label>
+                            <select id="event-type" onchange="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                <option value="Boda / Matrimonio">Boda / Matrimonio</option>
+                                <option value="Cumpleaños / Aniversario">Cumpleaños / Aniversario</option>
+                                <option value="Evento Corporativo">Evento Corporativo</option>
+                                <option value="Fiesta Patronal / Festival">Fiesta Patronal / Festival</option>
+                                <option value="Graduación / Promoción">Graduación / Promoción</option>
+                                <option value="Otro Evento Especial">Otro Evento Especial</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Fecha del Evento</label>
+                            <input type="date" id="event-date" onchange="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Ubicación / Lugar</label>
+                            <input type="text" id="event-location" placeholder="Ej: Club Campestre, Lince" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Duración y Configuración del Formato -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">2</span>
+                            <h2 class="font-bold text-slate-200 text-sm sm:text-base">Horas de Show e Integrantes</h2>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button onclick="setQuickPreset(3)" class="px-2.5 py-1 text-xs rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-semibold border border-amber-500/20 transition">
+                                <i class="fa-solid fa-users text-[10px] mr-1"></i> 3 Integrantes
+                            </button>
+                            <button onclick="setQuickPreset(4)" class="px-2.5 py-1 text-xs rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-semibold border border-amber-500/20 transition">
+                                <i class="fa-solid fa-users-gear text-[10px] mr-1"></i> 4 Integrantes
+                            </button>
+                            <button onclick="setComparePreset()" class="px-2.5 py-1 text-xs rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/20 transition">
+                                <i class="fa-solid fa-layer-group text-[10px] mr-1"></i> 3 + 4 en 1
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Duración del Show</label>
+                                <div class="flex gap-1">
+                                    <button onclick="setHours(5)" class="px-2 py-0.5 text-[11px] font-bold rounded bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-400 transition">5h</button>
+                                    <button onclick="setHours(6)" class="px-2 py-0.5 text-[11px] font-bold rounded bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-400 transition">6h</button>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="adjustHours(-1)" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold flex items-center justify-center transition active:scale-95">-</button>
+                                <input type="number" id="event-hours" value="5" min="1" max="12" oninput="renderMusicians(); calculateQuote();" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 text-center font-bold text-lg text-amber-400 focus:outline-none focus:border-amber-500 transition">
+                                <button onclick="adjustHours(1)" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold flex items-center justify-center transition active:scale-95">+</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Cálculo de Costo de Integrantes</label>
+                            <select id="rate-calculation-type" onchange="renderMusicians(); calculateQuote();" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                <option value="hourly">Costo por Hora (S/Hora x Horas x Integrante)</option>
+                                <option value="flat">Tarifa Fija por Evento (Monto Fijo x Integrante)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Tipo de Cotizacion</label>
+                            <select id="quote-mode" onchange="handleQuoteModeChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                <option value="single">Una opcion</option>
+                                <option value="compare">3 y 4 integrantes en 1</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Musician / Singer List Editor -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Costos Internos por Integrante</label>
+                            <button onclick="addMusicianRow()" class="text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-semibold px-2.5 py-1 rounded-lg border border-amber-500/20 transition flex items-center gap-1">
+                                <i class="fa-solid fa-plus text-xs"></i> Agregar Integrante
+                            </button>
+                        </div>
+
+                        <div id="musicians-container" class="space-y-2.5 max-h-80 overflow-y-auto pr-1 custom-scrollbar">
+                            <!-- Musician Rows rendered via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Sonido, Movilidad y Adicionales -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+                    <div class="flex items-center space-x-2 mb-4 pb-3 border-b border-slate-800">
+                        <span class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">3</span>
+                        <h2 class="font-bold text-slate-200 text-sm sm:text-base">Equipamiento de Sonido & Movilidad</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Equipo de Sonido Preset</label>
+                            <select id="sound-preset" onchange="applySoundPreset()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                <option value="custom">Personalizado (Ingresar Monto)</option>
+                                <option value="basic">Sonido Básico (~50 pers) - S/ 300</option>
+                                <option value="medium" selected>Sonido Mediano (~150 pers) - S/ 500</option>
+                                <option value="pro">Sonido Pro / Escenario (~300+ pers) - S/ 900</option>
+                                <option value="none">Sin Sonido (Cliente lo provee) - S/ 0</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Costo Total Sonido (S/)</label>
+                            <div class="relative">
+                                <span class="absolute left-3.5 top-2.5 text-slate-500 font-semibold text-sm">S/</span>
+                                <input type="number" id="sound-cost" value="500" min="0" step="10" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Costo Movilidad / Traslado (S/)</label>
+                            <div class="relative">
+                                <span class="absolute left-3.5 top-2.5 text-slate-500 font-semibold text-sm">S/</span>
+                                <input type="number" id="mobility-cost" value="150" min="0" step="10" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Luces / Extras / Efectos (S/)</label>
+                            <div class="relative">
+                                <span class="absolute left-3.5 top-2.5 text-slate-500 font-semibold text-sm">S/</span>
+                                <input type="number" id="extras-cost" value="100" min="0" step="10" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Notas del Equipo de Sonido</label>
+                        <input type="text" id="sound-notes" value="Incluye parlantes de alta potencia, micrófonos inalámbricos, consola y operador de sonido." oninput="calculateQuote()" class="w-full bg-transparent text-xs text-slate-300 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Step 4: Margen Comercial y Ajuste -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+                    <div class="flex items-center space-x-2 mb-4 pb-3 border-b border-slate-800">
+                        <span class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">4</span>
+                        <h2 class="font-bold text-slate-200 text-sm sm:text-base">Ganancia y Precio Final</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Ganancia (%)</label>
+                            <div class="relative">
+                                <input type="number" id="profit-margin" value="20" min="0" max="200" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                <span class="absolute right-3.5 top-2.5 text-slate-500 font-semibold text-sm">%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Descuento (S/)</label>
+                            <div class="relative">
+                                <span class="absolute left-3.5 top-2.5 text-slate-500 font-semibold text-sm">S/</span>
+                                <input type="number" id="discount-amount" value="0" min="0" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Abono Reserva (%)</label>
+                            <select id="deposit-percent" onchange="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                <option value="30">30% de Reserva</option>
+                                <option value="50" selected>50% de Reserva</option>
+                                <option value="0">Sin Reserva Obligatoria</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Cost Breakdown Summary Pills -->
+                    <div class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        <div class="bg-slate-950 p-2.5 sm:p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] sm:text-[11px] text-slate-400 block font-medium">Costo Integrantes</span>
+                            <span id="summary-musicians-cost" class="text-xs sm:text-sm font-bold text-slate-200">S/ 0.00</span>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 sm:p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] sm:text-[11px] text-slate-400 block font-medium">Sonido y Logística</span>
+                            <span id="summary-equipment-cost" class="text-xs sm:text-sm font-bold text-slate-200">S/ 0.00</span>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 sm:p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] sm:text-[11px] text-slate-400 block font-medium">Costo Base Total</span>
+                            <span id="summary-base-cost" class="text-xs sm:text-sm font-bold text-slate-400">S/ 0.00</span>
+                        </div>
+                        <div class="bg-amber-500/10 p-2.5 sm:p-3 rounded-xl border border-amber-500/30">
+                            <span class="text-[10px] sm:text-[11px] text-amber-400 block font-medium">Precio Final Cliente</span>
+                            <span id="summary-final-price" class="text-sm sm:text-base font-extrabold text-amber-400">S/ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Panel: Live Quote Preview & Actions (5 Cols) -->
+            <div class="lg:col-span-5 space-y-4">
+                
+                <!-- Action Bar above card -->
+                <div class="no-print flex flex-wrap items-center justify-between gap-2 bg-slate-900 border border-slate-800 p-3 rounded-2xl shadow-lg">
+                    <span class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cotización Generada
+                    </span>
+                    <div class="flex items-center space-x-1.5">
+                        <button onclick="copyWhatsAppMessage()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition flex items-center gap-1.5 shadow-md active:scale-95">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> Copiar WA
+                        </button>
+                        <button onclick="exportToPDF()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-slate-700 transition flex items-center gap-1.5 active:scale-95">
+                            <i class="fa-solid fa-file-pdf text-red-400"></i> PDF
+                        </button>
+                        <button onclick="saveCurrentQuote()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs transition flex items-center gap-1.5 active:scale-95">
+                            <i class="fa-solid fa-bookmark"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Printable / Exportable Proposal Card -->
+                <div id="quote-document" class="print-card bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-8 shadow-2xl relative overflow-hidden text-slate-100">
+                    
+                    <!-- Decorative Golden Top Stripe -->
+                    <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-600"></div>
+
+                    <!-- Proposal Header -->
+                    <div class="flex items-start justify-between pb-5 border-b border-slate-800 mt-2">
+                        <div>
+                            <div class="flex items-center space-x-2 mb-1">
+                                <span class="font-black text-lg sm:text-xl tracking-tight text-white uppercase">PROPUESTA MUSICAL</span>
+                            </div>
+                            <p id="doc-orchestra-name" class="text-xs font-semibold text-amber-400 tracking-wider uppercase">ORQUESTA EN VIVO</p>
+                        </div>
+                        <div class="text-right">
+                            <span id="doc-quote-number" class="text-xs font-mono font-bold text-slate-400 block">COT-2026</span>
+                            <span id="doc-current-date" class="text-[11px] text-slate-500">Hoy</span>
+                        </div>
+                    </div>
+
+                    <!-- Client & Event Info Block -->
+                    <div class="my-5 bg-slate-950/70 p-3.5 sm:p-4 rounded-xl border border-slate-800/80 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">Cliente:</span>
+                            <span id="doc-client" class="font-bold text-slate-100">Carlos Mendoza</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">Tipo de Evento:</span>
+                            <span id="doc-event" class="font-medium text-slate-200">Boda / Matrimonio</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">Fecha Reservada:</span>
+                            <span id="doc-date" class="font-medium text-slate-200">Pendiente</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">Ubicación:</span>
+                            <span id="doc-location" class="font-medium text-slate-200">Lugar Por Confirmar</span>
+                        </div>
+                    </div>
+
+                    <!-- Included Services List -->
+                    <div class="space-y-3.5 mb-5">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider pb-1 border-b border-slate-800">Detalle del Servicio</h3>
+
+                        <!-- Show Hours & Band Format -->
+                        <div class="flex items-start justify-between">
+                            <div class="space-y-0.5 w-full">
+                                <p id="doc-band-format" class="text-sm font-bold text-slate-100">Orquesta de 3 Integrantes</p>
+                                <p id="doc-hours-text" class="text-xs text-slate-400">Show en vivo de 5 horas continuas / intercaladas</p>
+                                <div id="doc-musicians-list" class="text-[11px] text-slate-300 pt-1 space-y-0.5">
+                                    <!-- Simple summary of performance format -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sound Equipment Detail -->
+                        <div id="doc-sound-block" class="flex items-start justify-between pt-2 border-t border-slate-800/60">
+                            <div>
+                                <p class="text-xs font-bold text-slate-200">Sistema de Sonido Profesional</p>
+                                <p id="doc-sound-detail" class="text-[11px] text-slate-400 mt-0.5">Incluye amplificación, micrófonos y operador técnico.</p>
+                            </div>
+                        </div>
+
+                        <!-- Mobility Detail -->
+                        <div class="flex items-start justify-between pt-2 border-t border-slate-800/60">
+                            <div>
+                                <p class="text-xs font-bold text-slate-200">Traslado y Logística (Movilidad)</p>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Transporte para integrantes y equipos de sonido.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing Summary Section -->
+                    <div class="border-t-2 border-dashed border-slate-800 pt-3.5 space-y-2">
+                        <div id="doc-comparison-block" class="hidden space-y-2 mb-3">
+                            <div class="flex justify-between items-center text-[11px] text-slate-400">
+                                <span>Cotizaciones separadas</span>
+                                <span>3 y 4 integrantes</span>
+                            </div>
+                            <div id="doc-comparison-options" class="space-y-2">
+                                <!-- Comparison rows rendered via JS -->
+                            </div>
+                        </div>
+                        <div id="doc-single-subtotal-row" class="flex justify-between items-center text-xs text-slate-400">
+                            <span>Inversión Total del Show:</span>
+                            <span id="doc-subtotal" class="font-semibold text-slate-300">S/ 0.00</span>
+                        </div>
+                        <div id="doc-discount-row" class="flex justify-between items-center text-xs text-emerald-400 hidden">
+                            <span>Descuento Especial Aplicado:</span>
+                            <span id="doc-discount">-S/ 0.00</span>
+                        </div>
+                        <div id="doc-single-total-row" class="flex justify-between items-center pt-2 border-t border-slate-800">
+                            <span class="text-sm font-extrabold text-slate-100">TOTAL NETO:</span>
+                            <span id="doc-total" class="text-xl sm:text-2xl font-black text-amber-400">S/ 0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Deposit and Payment Terms -->
+                    <div id="doc-deposit-block" class="mt-5 bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl text-center space-y-0.5">
+                        <p class="text-xs text-amber-300 font-semibold">
+                            <i class="fa-solid fa-shield-halved mr-1"></i> Reserva de Fecha con el <span id="doc-deposit-percent">50%</span> (<span id="doc-deposit-amount" class="font-bold">S/ 0.00</span>)
+                        </p>
+                        <p class="text-[10px] sm:text-[11px] text-slate-400">El saldo se cancela el mismo día antes de iniciar la presentación.</p>
+                    </div>
+
+                    <!-- Footer & Guarantee -->
+                    <div class="mt-5 text-center text-[10px] text-slate-500 space-y-0.5">
+                        <p>Cotización válida por 7 días calendario • Puntualidad y Garantía</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: PRESETS & DATA MANAGEMENT ================= -->
+        <div id="tab-presets" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-800">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-100">Tarifas Base y Respaldo de Datos</h2>
+                        <p class="text-xs text-slate-400">Guarda tus precios predeterminados o exporta una copia de seguridad.</p>
+                    </div>
+                    <button onclick="saveDefaultMusiciansPreset()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition shadow-md flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Mis Tarifas Base
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Band Master Info -->
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-semibold text-amber-400 flex items-center gap-2">
+                            <i class="fa-solid fa-music"></i> Datos de la Agrupación
+                        </h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nombre de la Orquesta / Agrupación</label>
+                            <input type="text" id="preset-orchestra-name" value="La Super Tropical" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Sonido Base (S/)</label>
+                                <input type="number" id="default-sound-cost" value="500" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Movilidad Base (S/)</label>
+                                <input type="number" id="default-mobility-cost" value="150" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Backup and Restore Data Controls -->
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-semibold text-amber-400 flex items-center gap-2">
+                            <i class="fa-solid fa-database"></i> Copia de Seguridad de Información
+                        </h3>
+                        <p class="text-xs text-slate-400">Toda tu información se guarda en el celular. Puedes exportar una copia para guardarla en la nube o pasarla a otro dispositivo.</p>
+                        
+                        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                            <button onclick="exportBackupData()" class="flex-1 py-2.5 px-4 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-semibold text-slate-200 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-download text-amber-400"></i> Respaldar Datos (JSON)
+                            </button>
+                            <label class="flex-1 py-2.5 px-4 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-semibold text-slate-200 transition flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-upload text-emerald-400"></i> Restaurar Respaldo
+                                <input type="file" accept=".json" onchange="importBackupData(event)" class="hidden">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: QUOTE HISTORY ================= -->
+        <div id="tab-history" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-100">Historial de Cotizaciones Guardadas</h2>
+                        <p class="text-xs text-slate-400">Revisa, vuelve a cargar o reenvía cotizaciones guardadas en tu celular.</p>
+                    </div>
+                    <button onclick="promptClearAllHistory()" class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold text-xs rounded-xl border border-red-500/20 transition">
+                        <i class="fa-solid fa-trash mr-1"></i> Borrar Todo
+                    </button>
+                </div>
+
+                <div id="history-container" class="space-y-3">
+                    <!-- History Cards generated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Confirmation Modal for Deleting History -->
+        <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
+                <div class="flex items-center space-x-3 text-red-400">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                    <h3 class="font-bold text-slate-100">¿Borrar todo el historial?</h3>
+                </div>
+                <p class="text-xs text-slate-400">Esta acción eliminará todas las cotizaciones guardadas localmente y no se puede deshacer.</p>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button onclick="closeConfirmModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition">Cancelar</button>
+                    <button onclick="confirmClearAllHistory()" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-xs font-semibold rounded-xl transition">Sí, Borrar</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JavaScript Application Logic & PWA Registration -->
+    <script>
+        // Global state store
+        let musicians = [
+            { id: 1, role: "Integrante 1", hourlyCost: 80, active: true },
+            { id: 2, role: "Integrante 2", hourlyCost: 80, active: true },
+            { id: 3, role: "Integrante 3", hourlyCost: 70, active: true }
+        ];
+
+        let quoteHistory = [];
+        let deferredPrompt = null;
+        let lastQuoteResult = null;
+
+        // Sound preset configurations
+        const soundPresets = {
+            basic: { cost: 300, notes: "Equipo básico: 2 parlantes 15\", micrófonos inalámbricos y mezcladora." },
+            medium: { cost: 500, notes: "Equipo mediano: 2 subs + 2 tops, consolas, iluminación LED y operador de sonido." },
+            pro: { cost: 900, notes: "Sistema de sonido PA completo, estructura de luces, consola digital y técnico dedicado." },
+            none: { cost: 0, notes: "" }
+        };
+
+        // On Page Load Initialization
+        window.onload = function() {
+            registerPwaAndServiceWorker();
+            loadSavedData();
+            renderMusicians();
+            calculateQuote();
+            
+            // Set default date to 15 days from now
+            const futureDate = new Date();
+            futureDate.setDate(futureDate.getDate() + 15);
+            document.getElementById('event-date').value = futureDate.toISOString().split('T')[0];
+            document.getElementById('doc-current-date').textContent = new Date().toLocaleDateString('es-ES');
+
+            // Hide iOS banner if standalone or Android
+            const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            if (!isIos || isStandalone) {
+                const banner = document.getElementById('ios-install-banner');
+                if (banner) banner.style.display = 'none';
+            }
+        };
+
+        // Tab Navigation Switcher
+        function switchTab(tabName) {
+            ['editor', 'presets', 'history'].forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if (el) el.classList.add('hidden');
+                const btn = document.getElementById(`btn-tab-${t}`);
+                if (btn) {
+                    btn.className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium text-slate-300 hover:bg-slate-800 transition";
+                }
+            });
+
+            const activeTab = document.getElementById(`tab-${tabName}`);
+            if (activeTab) activeTab.classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-tab-${tabName}`);
+            if (activeBtn) {
+                activeBtn.className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition bg-amber-500 text-slate-950 shadow-md";
+            }
+
+            if (tabName === 'history') {
+                renderHistory();
+            }
+        }
+
+        // Render Musician Input Rows without stealing input focus
+        function renderMusicians() {
+            const container = document.getElementById('musicians-container');
+            const hours = parseFloat(document.getElementById('event-hours').value) || 0;
+            const rateType = document.getElementById('rate-calculation-type').value;
+
+            container.innerHTML = '';
+
+            musicians.forEach((musician) => {
+                const isHourly = rateType === 'hourly';
+                const subtotal = isHourly ? (musician.hourlyCost * hours) : musician.hourlyCost;
+
+                const row = document.createElement('div');
+                row.className = `musician-row flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 rounded-xl border transition ${
+                    musician.active ? 'bg-slate-950 border-slate-800' : 'bg-slate-950/40 border-slate-900 opacity-50'
+                }`;
+
+                row.innerHTML = `
+                    <button onclick="toggleMusician(${musician.id})" class="w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 ${
+                        musician.active ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-500'
+                    }" title="Activar/Desactivar">
+                        <i class="fa-solid ${musician.active ? 'fa-check' : 'fa-xmark'} text-xs"></i>
+                    </button>
+                    
+                    <input type="text" value="${escapeHtml(musician.role)}" oninput="updateMusicianRole(${musician.id}, this.value)" 
+                           placeholder="Integrante" class="flex-1 min-w-[130px] bg-transparent text-xs font-medium text-slate-200 focus:outline-none border-b border-transparent focus:border-amber-500 px-1 py-0.5">
+
+                    <div class="flex items-center space-x-1 bg-slate-900 px-2 py-1 rounded-lg border border-slate-800 shrink-0">
+                        <span class="text-[11px] text-slate-500 font-semibold">S/</span>
+                        <input type="number" value="${musician.hourlyCost}" min="0" step="5" oninput="updateMusicianCost(${musician.id}, this.value, this)" 
+                               class="w-14 sm:w-16 bg-transparent text-xs font-bold text-amber-400 text-right focus:outline-none">
+                        <span class="text-[10px] text-slate-500">${isHourly ? '/h' : 'fijo'}</span>
+                    </div>
+
+                    <div class="text-right px-1 min-w-[70px] shrink-0">
+                        <span class="block text-[9px] text-slate-500 uppercase font-semibold">Subtotal</span>
+                        <span class="text-xs font-bold text-slate-200 musician-subtotal">S/ ${subtotal.toFixed(2)}</span>
+                    </div>
+
+                    <button onclick="removeMusician(${musician.id})" class="text-slate-600 hover:text-red-400 p-1.5 transition shrink-0" title="Eliminar integrante">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function updateMusicianRole(id, newRole) {
+            const m = musicians.find(item => item.id === id);
+            if (m) {
+                m.role = newRole;
+                calculateQuote();
+            }
+        }
+
+        function updateMusicianCost(id, newCost, inputEl) {
+            const m = musicians.find(item => item.id === id);
+            if (m) {
+                m.hourlyCost = parseFloat(newCost) || 0;
+                if (inputEl) {
+                    const row = inputEl.closest('.musician-row');
+                    if (row) {
+                        const hours = parseFloat(document.getElementById('event-hours').value) || 0;
+                        const rateType = document.getElementById('rate-calculation-type').value;
+                        const subtotal = rateType === 'hourly' ? (m.hourlyCost * hours) : m.hourlyCost;
+                        const subtotalEl = row.querySelector('.musician-subtotal');
+                        if (subtotalEl) {
+                            subtotalEl.textContent = `S/ ${subtotal.toFixed(2)}`;
+                        }
+                    }
+                }
+                calculateQuote();
+            }
+        }
+
+        function toggleMusician(id) {
+            const m = musicians.find(item => item.id === id);
+            if (m) {
+                m.active = !m.active;
+                renderMusicians();
+                calculateQuote();
+            }
+        }
+
+        function addMusicianRow() {
+            if (musicians.length >= 4) {
+                showToast("Este cotizador está configurado para 3 o 4 integrantes.", "warning");
+                return;
+            }
+            const newId = musicians.length > 0 ? Math.max(...musicians.map(m => m.id)) + 1 : 1;
+            musicians.push({
+                id: newId,
+                role: `Integrante ${musicians.length + 1}`,
+                hourlyCost: 70,
+                active: true
+            });
+            renderMusicians();
+            calculateQuote();
+        }
+
+        function ensureMusicianRows(count) {
+            while (musicians.length < count && musicians.length < 4) {
+                const newId = musicians.length > 0 ? Math.max(...musicians.map(m => m.id)) + 1 : 1;
+                musicians.push({
+                    id: newId,
+                    role: `Integrante ${musicians.length + 1}`,
+                    hourlyCost: musicians.length < 2 ? 80 : 70,
+                    active: true
+                });
+            }
+        }
+
+        function handleQuoteModeChange() {
+            const mode = document.getElementById('quote-mode').value;
+            if (mode === 'compare') {
+                ensureMusicianRows(4);
+                musicians.forEach(m => m.active = true);
+                renderMusicians();
+                showToast("Modo 3 y 4 integrantes activado.", "success");
+            }
+            calculateQuote();
+        }
+
+        function removeMusician(id) {
+            if (musicians.length <= 1) {
+                showToast("Debe haber al menos 1 integrante.", "warning");
+                return;
+            }
+            musicians = musicians.filter(m => m.id !== id);
+            renderMusicians();
+            calculateQuote();
+        }
+
+        function setHours(hrs) {
+            document.getElementById('event-hours').value = hrs;
+            renderMusicians();
+            calculateQuote();
+        }
+
+        function setQuickPreset(count) {
+            const num = parseInt(count) || 3;
+            const quoteModeSelect = document.getElementById('quote-mode');
+            if (quoteModeSelect) quoteModeSelect.value = 'single';
+            if (num === 3) {
+                musicians = [
+                    { id: 1, role: "Integrante 1", hourlyCost: 80, active: true },
+                    { id: 2, role: "Integrante 2", hourlyCost: 80, active: true },
+                    { id: 3, role: "Integrante 3", hourlyCost: 70, active: true }
+                ];
+            } else {
+                musicians = [
+                    { id: 1, role: "Integrante 1", hourlyCost: 80, active: true },
+                    { id: 2, role: "Integrante 2", hourlyCost: 80, active: true },
+                    { id: 3, role: "Integrante 3", hourlyCost: 70, active: true },
+                    { id: 4, role: "Integrante 4", hourlyCost: 70, active: true }
+                ];
+            }
+            renderMusicians();
+            calculateQuote();
+            showToast(`Cargado formato de ${num} Integrantes.`, "success");
+        }
+
+        function setComparePreset() {
+            const quoteModeSelect = document.getElementById('quote-mode');
+            if (quoteModeSelect) quoteModeSelect.value = 'compare';
+            ensureMusicianRows(4);
+            musicians.forEach(m => m.active = true);
+            renderMusicians();
+            calculateQuote();
+            showToast("Cargada cotizacion 3 + 4 en 1.", "success");
+        }
+
+        function adjustHours(delta) {
+            const input = document.getElementById('event-hours');
+            let val = parseInt(input.value) || 5;
+            val = Math.max(1, Math.min(12, val + delta));
+            input.value = val;
+            renderMusicians();
+            calculateQuote();
+        }
+
+        function getMusiciansForCount(count) {
+            const ordered = [...musicians].sort((a, b) => a.id - b.id);
+            let selected = ordered.slice(0, count);
+            while (selected.length < count) {
+                selected.push({
+                    id: 100 + selected.length,
+                    role: `Integrante ${selected.length + 1}`,
+                    hourlyCost: selected.length < 2 ? 80 : 70,
+                    active: true
+                });
+            }
+            return selected;
+        }
+
+        function calculateTotalsFor(musicianSet, options) {
+            let musiciansTotalCost = 0;
+            musicianSet.forEach(m => {
+                musiciansTotalCost += options.rateType === 'hourly' ? (m.hourlyCost * options.hours) : m.hourlyCost;
+            });
+
+            const equipmentAndLogisticsCost = options.soundCost + options.mobilityCost + options.extrasCost;
+            const totalBaseCost = musiciansTotalCost + equipmentAndLogisticsCost;
+            const marginAmount = totalBaseCost * (options.profitMargin / 100);
+            const subtotalWithMargin = totalBaseCost + marginAmount;
+            const finalClientPrice = Math.max(0, subtotalWithMargin - options.discount);
+            const depositAmount = finalClientPrice * (options.depositPercent / 100);
+
+            return {
+                count: musicianSet.length,
+                musiciansTotalCost,
+                equipmentAndLogisticsCost,
+                totalBaseCost,
+                marginAmount,
+                subtotalWithMargin,
+                finalClientPrice,
+                depositAmount
+            };
+        }
+
+        function applySoundPreset() {
+            const key = document.getElementById('sound-preset').value;
+            if (key in soundPresets) {
+                document.getElementById('sound-cost').value = soundPresets[key].cost;
+                document.getElementById('sound-notes').value = soundPresets[key].notes;
+            }
+            calculateQuote();
+        }
+
+        // Core Calculation Engine
+        function calculateQuote() {
+            const hours = parseFloat(document.getElementById('event-hours').value) || 0;
+            const rateType = document.getElementById('rate-calculation-type').value;
+            const quoteMode = document.getElementById('quote-mode')?.value || 'single';
+            const soundCost = parseFloat(document.getElementById('sound-cost').value) || 0;
+            const mobilityCost = parseFloat(document.getElementById('mobility-cost').value) || 0;
+            const extrasCost = parseFloat(document.getElementById('extras-cost').value) || 0;
+            const profitMargin = parseFloat(document.getElementById('profit-margin').value) || 0;
+            const discount = parseFloat(document.getElementById('discount-amount').value) || 0;
+            const depositPercent = parseInt(document.getElementById('deposit-percent').value) || 50;
+
+            const activeMusicians = musicians.filter(m => m.active);
+            const calculationOptions = { hours, rateType, soundCost, mobilityCost, extrasCost, profitMargin, discount, depositPercent };
+            const singleTotals = calculateTotalsFor(activeMusicians, calculationOptions);
+            const comparisonTotals = [3, 4].map(count => calculateTotalsFor(getMusiciansForCount(count), calculationOptions));
+            const displayTotals = quoteMode === 'compare' ? comparisonTotals[0] : singleTotals;
+            const musiciansTotalCost = displayTotals.musiciansTotalCost;
+            const equipmentAndLogisticsCost = displayTotals.equipmentAndLogisticsCost;
+            const totalBaseCost = displayTotals.totalBaseCost;
+            const subtotalWithMargin = displayTotals.subtotalWithMargin;
+            const finalClientPrice = displayTotals.finalClientPrice;
+            const depositAmount = displayTotals.depositAmount;
+
+            lastQuoteResult = {
+                mode: quoteMode,
+                single: singleTotals,
+                comparison: comparisonTotals
+            };
+
+            // Update Summary Bar
+            document.getElementById('summary-musicians-cost').textContent = `S/ ${musiciansTotalCost.toFixed(2)}`;
+            document.getElementById('summary-equipment-cost').textContent = `S/ ${equipmentAndLogisticsCost.toFixed(2)}`;
+            document.getElementById('summary-base-cost').textContent = `S/ ${totalBaseCost.toFixed(2)}`;
+            document.getElementById('summary-final-price').textContent = `S/ ${finalClientPrice.toFixed(2)}`;
+
+            // Update Preview Document UI in Real-Time
+            const clientName = document.getElementById('client-name').value || "Cliente";
+            const eventType = document.getElementById('event-type').value;
+            const eventDate = document.getElementById('event-date').value;
+            const location = document.getElementById('event-location').value || "Lugar Por Confirmar";
+            const orchestraName = document.getElementById('preset-orchestra-name').value || "La Super Tropical";
+
+            document.getElementById('doc-client').textContent = clientName;
+            document.getElementById('doc-event').textContent = eventType;
+            document.getElementById('doc-date').textContent = eventDate ? formatDate(eventDate) : "Por definir";
+            document.getElementById('doc-location').textContent = location;
+            document.getElementById('doc-orchestra-name').textContent = orchestraName.toUpperCase();
+
+            document.getElementById('doc-band-format').textContent = quoteMode === 'compare' ? 'Opciones: Orquesta de 3 y 4 Integrantes' : `Orquesta de ${activeMusicians.length} Integrantes`;
+            document.getElementById('doc-hours-text').textContent = `Show musical en vivo de ${hours} hora(s) continuas/intercaladas`;
+
+            const musListEl = document.getElementById('doc-musicians-list');
+            musListEl.innerHTML = quoteMode === 'compare'
+                ? `<span class="text-slate-300 font-medium">• Presentacion de Orquesta / Agrupacion en vivo con opcion de 3 o 4 integrantes en escena</span>`
+                : `<span class="text-slate-300 font-medium">• Presentación de Orquesta / Agrupación en vivo con ${activeMusicians.length} integrantes en escena</span>`;
+
+            const soundNotes = document.getElementById('sound-notes').value.trim();
+            const soundBlock = document.getElementById('doc-sound-block');
+            document.getElementById('doc-sound-detail').textContent = soundCost > 0 ? soundNotes : "";
+            soundBlock.classList.toggle('hidden', soundCost <= 0 || !soundNotes);
+
+            document.getElementById('doc-subtotal').textContent = `S/ ${subtotalWithMargin.toFixed(2)}`;
+            
+            const discountRow = document.getElementById('doc-discount-row');
+            if (discount > 0) {
+                discountRow.classList.remove('hidden');
+                document.getElementById('doc-discount').textContent = `-S/ ${discount.toFixed(2)}`;
+            } else {
+                discountRow.classList.add('hidden');
+            }
+
+            document.getElementById('doc-total').textContent = `S/ ${finalClientPrice.toFixed(2)}`;
+            document.getElementById('doc-deposit-percent').textContent = `${depositPercent}%`;
+            document.getElementById('doc-deposit-amount').textContent = `S/ ${depositAmount.toFixed(2)}`;
+
+            const comparisonBlock = document.getElementById('doc-comparison-block');
+            const comparisonOptions = document.getElementById('doc-comparison-options');
+            const singleSubtotalRow = document.getElementById('doc-single-subtotal-row');
+            const singleTotalRow = document.getElementById('doc-single-total-row');
+            const depositBlock = document.getElementById('doc-deposit-block');
+            if (quoteMode === 'compare') {
+                comparisonBlock.classList.remove('hidden');
+                singleSubtotalRow.classList.add('hidden');
+                singleTotalRow.classList.add('hidden');
+                discountRow.classList.add('hidden');
+                depositBlock.classList.add('hidden');
+                comparisonOptions.innerHTML = comparisonTotals.map(item => `
+                    <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3 space-y-2">
+                        <div class="flex items-start justify-between gap-3 pb-2 border-b border-slate-800">
+                            <div>
+                                <p class="text-xs font-black text-slate-100 uppercase">Cotizacion ${item.count} integrantes</p>
+                                <p class="text-[10px] text-slate-500">Show musical de ${hours} hora(s)</p>
+                            </div>
+                            <span class="text-[10px] px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 font-bold">${depositPercent}% reserva</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-slate-400">
+                            <span>Inversion Total del Show:</span>
+                            <span class="font-semibold text-slate-300">S/ ${item.subtotalWithMargin.toFixed(2)}</span>
+                        </div>
+                        ${discount > 0 ? `
+                            <div class="flex justify-between items-center text-xs text-emerald-400">
+                                <span>Descuento Especial Aplicado:</span>
+                                <span>-S/ ${discount.toFixed(2)}</span>
+                            </div>
+                        ` : ''}
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                            <span class="text-xs font-extrabold text-slate-100">TOTAL NETO:</span>
+                            <span class="text-lg font-black text-amber-400">S/ ${item.finalClientPrice.toFixed(2)}</span>
+                        </div>
+                        <div class="bg-amber-500/10 border border-amber-500/20 p-2 rounded-lg text-center">
+                            <p class="text-[11px] text-amber-300 font-semibold">Reserva de Fecha: S/ ${item.depositAmount.toFixed(2)}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                comparisonBlock.classList.add('hidden');
+                singleSubtotalRow.classList.remove('hidden');
+                singleTotalRow.classList.remove('hidden');
+                depositBlock.classList.remove('hidden');
+                comparisonOptions.innerHTML = '';
+            }
+        }
+
+        // Persistent LocalStorage Management
+        function saveDefaultMusiciansPreset() {
+            localStorage.setItem('cotiza_music_default_musicians', JSON.stringify(musicians));
+            localStorage.setItem('cotiza_music_orchestra_name', document.getElementById('preset-orchestra-name').value);
+            localStorage.setItem('cotiza_music_default_sound', document.getElementById('default-sound-cost').value);
+            localStorage.setItem('cotiza_music_default_mobility', document.getElementById('default-mobility-cost').value);
+
+            showToast("Tarifas guardadas en tu celular.", "success");
+        }
+
+        function loadSavedData() {
+            const savedMusicians = localStorage.getItem('cotiza_music_default_musicians');
+            if (savedMusicians) {
+                try { musicians = JSON.parse(savedMusicians); } catch(e){}
+            }
+            const savedHistory = localStorage.getItem('cotiza_music_history');
+            if (savedHistory) {
+                try { quoteHistory = JSON.parse(savedHistory); } catch(e){}
+            }
+            const savedOrchestra = localStorage.getItem('cotiza_music_orchestra_name');
+            if (savedOrchestra && savedOrchestra !== 'Orquesta Sabor & Ritmo') {
+                document.getElementById('preset-orchestra-name').value = savedOrchestra;
+            }
+            const savedSound = localStorage.getItem('cotiza_music_default_sound');
+            if (savedSound) {
+                document.getElementById('sound-cost').value = savedSound;
+                document.getElementById('default-sound-cost').value = savedSound;
+                if (Number(savedSound) <= 0) document.getElementById('sound-notes').value = "";
+            }
+            const savedMobility = localStorage.getItem('cotiza_music_default_mobility');
+            if (savedMobility) {
+                document.getElementById('mobility-cost').value = savedMobility;
+                document.getElementById('default-mobility-cost').value = savedMobility;
+            }
+        }
+
+        // WhatsApp Copy
+        function copyWhatsAppMessage() {
+            const clientName = document.getElementById('client-name').value || "estimado(a) cliente";
+            const eventType = document.getElementById('event-type').value;
+            const hours = document.getElementById('event-hours').value;
+            const quoteMode = document.getElementById('quote-mode')?.value || 'single';
+            const activeMusicians = musicians.filter(m => m.active);
+            const total = document.getElementById('summary-final-price').textContent;
+            const depositPercent = document.getElementById('deposit-percent').value;
+            const depositAmount = document.getElementById('doc-deposit-amount').textContent;
+            const orchestraName = document.getElementById('preset-orchestra-name').value || "La Super Tropical";
+            const soundNotes = document.getElementById('sound-notes').value.trim();
+            const soundCost = parseFloat(document.getElementById('sound-cost').value) || 0;
+            const soundLine = soundCost > 0 && soundNotes ? `*EQUIPO DE SONIDO:* ${soundNotes}\n` : "";
+            const formatLine = quoteMode === 'compare'
+                ? `*FORMATOS DISPONIBLES:* Orquesta de 3 y 4 Integrantes en vivo\n`
+                : `*FORMATO:* Orquesta de ${activeMusicians.length} Integrantes en vivo\n`;
+            const investmentLine = quoteMode === 'compare' && lastQuoteResult
+                ? lastQuoteResult.comparison.map(item =>
+                    `*COTIZACION ${item.count} INTEGRANTES*\n` +
+                    `Total: *S/ ${item.finalClientPrice.toFixed(2)}*\n` +
+                    `Reserva ${depositPercent}%: S/ ${item.depositAmount.toFixed(2)}`
+                  ).join('\n\n') + '\n'
+                : `*INVERSION TOTAL:* *${total}*\n` +
+                  `*RESERVA:* Se separa la fecha con el ${depositPercent}% (${depositAmount})\n`;
+
+            const message = `*COTIZACION DE SHOW EN VIVO - ${orchestraName.toUpperCase()}*\n\n` +
+                `Hola *${clientName}*, un gusto saludarte. Te enviamos la propuesta para tu evento *${eventType}*:\n\n` +
+                formatLine +
+                `*DURACION:* ${hours} horas de show\n` +
+                soundLine +
+                `*LOGISTICA:* Movilidad y traslado incluidos\n\n` +
+                investmentLine + `\n` +
+                `Quedamos atentos para reservar tu fecha. Sera un gusto acompanarte.`;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = message;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Mensaje copiado para WhatsApp.", "success");
+            } catch (err) {
+                showToast("Error al copiar mensaje.", "error");
+            }
+            document.body.removeChild(textArea);
+        }
+        // PDF Export
+        function exportToPDF() {
+            const element = document.getElementById('quote-document');
+            showToast("Generando documento PDF...", "info");
+
+            const opt = {
+                margin:       [0.3, 0.3, 0.3, 0.3],
+                filename:     `Cotizacion_${(document.getElementById('client-name').value || 'Cliente').replace(/\s+/g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0f172a' },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                showToast("PDF guardado con éxito", "success");
+            }).catch(err => {
+                console.error(err);
+                showToast("Error al generar PDF", "error");
+            });
+        }
+
+        // Save Quote to Local History
+        function saveCurrentQuote() {
+            const quoteData = {
+                id: Date.now(),
+                dateSaved: new Date().toLocaleDateString('es-ES'),
+                clientName: document.getElementById('client-name').value || "Cliente Sin Nombre",
+                eventType: document.getElementById('event-type').value,
+                hours: document.getElementById('event-hours').value,
+                quoteMode: document.getElementById('quote-mode')?.value || 'single',
+                musiciansCount: musicians.filter(m => m.active).length,
+                total: document.getElementById('quote-mode')?.value === 'compare' && lastQuoteResult
+                    ? lastQuoteResult.comparison.map(item => `${item.count}: S/ ${item.finalClientPrice.toFixed(2)}`).join(' | ')
+                    : document.getElementById('summary-final-price').textContent,
+                state: {
+                    musicians: JSON.parse(JSON.stringify(musicians)),
+                    quoteMode: document.getElementById('quote-mode')?.value || 'single',
+                    hours: document.getElementById('event-hours').value,
+                    soundCost: document.getElementById('sound-cost').value,
+                    mobilityCost: document.getElementById('mobility-cost').value,
+                    extrasCost: document.getElementById('extras-cost').value,
+                    profitMargin: document.getElementById('profit-margin').value,
+                    discount: document.getElementById('discount-amount').value,
+                    soundNotes: document.getElementById('sound-notes').value,
+                    clientName: document.getElementById('client-name').value,
+                    eventType: document.getElementById('event-type').value,
+                    eventDate: document.getElementById('event-date').value,
+                    eventLocation: document.getElementById('event-location').value
+                }
+            };
+
+            quoteHistory.unshift(quoteData);
+            localStorage.setItem('cotiza_music_history', JSON.stringify(quoteHistory));
+            showToast("Cotización guardada en tu historial", "success");
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('history-container');
+            container.innerHTML = '';
+
+            if (quoteHistory.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-500 border-2 border-dashed border-slate-800 rounded-2xl">
+                        <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
+                        <p class="text-sm font-medium">No hay cotizaciones guardadas aún.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            quoteHistory.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-950 border border-slate-800 p-4 rounded-xl flex items-center justify-between hover:border-amber-500/50 transition";
+                card.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-bold text-slate-100 text-sm">${escapeHtml(item.clientName)}</span>
+                            <span class="text-[10px] px-2 py-0.5 bg-amber-500/10 text-amber-400 rounded-full font-semibold">${escapeHtml(item.eventType)}</span>
+                        </div>
+                        <p class="text-xs text-slate-400">
+                            ${item.hours} hrs • ${item.quoteMode === 'compare' ? '3 y 4 Integrantes' : item.musiciansCount + ' Integrantes'} • ${item.dateSaved}
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="font-extrabold text-amber-400 text-base">${item.total}</span>
+                        <button onclick="restoreQuote(${item.id})" class="px-3 py-1.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 text-xs font-semibold rounded-lg transition">
+                            Cargar
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function restoreQuote(id) {
+            const item = quoteHistory.find(q => q.id === id);
+            if (!item) return;
+
+            const s = item.state;
+            musicians = JSON.parse(JSON.stringify(s.musicians));
+            document.getElementById('quote-mode').value = s.quoteMode || 'single';
+            document.getElementById('event-hours').value = s.hours;
+            document.getElementById('sound-cost').value = s.soundCost;
+            document.getElementById('mobility-cost').value = s.mobilityCost;
+            document.getElementById('extras-cost').value = s.extrasCost;
+            document.getElementById('profit-margin').value = s.profitMargin;
+            document.getElementById('discount-amount').value = s.discount;
+            document.getElementById('sound-notes').value = s.soundNotes;
+            document.getElementById('client-name').value = s.clientName;
+            document.getElementById('event-type').value = s.eventType;
+            document.getElementById('event-date').value = s.eventDate;
+            document.getElementById('event-location').value = s.eventLocation;
+
+            renderMusicians();
+            calculateQuote();
+            switchTab('editor');
+            showToast("Cotización restaurada", "success");
+        }
+
+        function promptClearAllHistory() {
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+        }
+
+        function confirmClearAllHistory() {
+            quoteHistory = [];
+            localStorage.removeItem('cotiza_music_history');
+            renderHistory();
+            closeConfirmModal();
+            showToast("Historial borrado", "info");
+        }
+
+        function loadDemoData() {
+            document.getElementById('client-name').value = "Familia Rodríguez";
+            document.getElementById('event-location').value = "Hacienda San José, Pachacámac";
+            document.getElementById('event-hours').value = 5;
+            setQuickPreset(4);
+            showToast("Ejemplo cargado", "info");
+        }
+
+        // Backup & Restore Data Functions
+        function exportBackupData() {
+            const backup = {
+                history: quoteHistory,
+                defaultMusicians: localStorage.getItem('cotiza_music_default_musicians'),
+                orchestraName: localStorage.getItem('cotiza_music_orchestra_name'),
+                soundCost: localStorage.getItem('cotiza_music_default_sound'),
+                mobilityCost: localStorage.getItem('cotiza_music_default_mobility')
+            };
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `CotizaMusic_Respaldo_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Respaldo descargado correctamente.", "success");
+        }
+
+        function importBackupData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.history) {
+                        quoteHistory = data.history;
+                        localStorage.setItem('cotiza_music_history', JSON.stringify(quoteHistory));
+                    }
+                    if (data.defaultMusicians) localStorage.setItem('cotiza_music_default_musicians', data.defaultMusicians);
+                    if (data.orchestraName) localStorage.setItem('cotiza_music_orchestra_name', data.orchestraName);
+                    if (data.soundCost) localStorage.setItem('cotiza_music_default_sound', data.soundCost);
+                    if (data.mobilityCost) localStorage.setItem('cotiza_music_default_mobility', data.mobilityCost);
+
+                    loadSavedData();
+                    renderMusicians();
+                    calculateQuote();
+                    showToast("¡Respaldo restaurado con éxito!", "success");
+                } catch(err) {
+                    showToast("El archivo de respaldo no es válido.", "error");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
+
+            msgEl.textContent = message;
+
+            if (type === 'success') {
+                iconEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>`;
+            } else if (type === 'warning') {
+                iconEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-400 text-lg"></i>`;
+            } else {
+                iconEl.innerHTML = `<i class="fa-solid fa-circle-info text-blue-400 text-lg"></i>`;
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // PWA Dynamic Web Manifest & Service Worker Registration
+        function registerPwaAndServiceWorker() {
+            const manifest = {
+                name: "CotizaMusic Pro",
+                short_name: "CotizaMusic",
+                start_url: "./",
+                display: "standalone",
+                background_color: "#0f172a",
+                theme_color: "#0f172a",
+                orientation: "portrait",
+                icons: [
+                    {
+                        src: "https://cdn-icons-png.flaticon.com/512/3293/3293810.png",
+                        sizes: "512x512",
+                        type: "image/png"
+                    }
+                ]
+            };
+            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            const manifestUrl = URL.createObjectURL(manifestBlob);
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = manifestUrl;
+            document.head.appendChild(link);
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                const btn = document.getElementById('btn-install-pwa');
+                if (btn) btn.classList.remove('hidden');
+            });
+
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    const CACHE_NAME = 'cotizamusic-pwa-v1';
+                    self.addEventListener('install', (e) => { self.skipWaiting(); });
+                    self.addEventListener('activate', (e) => { self.clients.claim(); });
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            fetch(e.request).catch(() => caches.match(e.request))
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW Info:', err));
+            }
+        }
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('btn-install-pwa').classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+    </script>
+</body>
+</html>
