@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cotizador Orquesta la super tropicalk</title>
     <!-- PWA & Mobile Meta Tags -->
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#f7f8fc">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="CotizaMusic">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3293/3293810.png">
+    <link class="brand-app-icon" rel="apple-touch-icon" href="la-super-tropical-logo.png">
+    <link class="brand-app-icon" rel="icon" type="image/png" href="la-super-tropical-logo.png">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,7 +20,7 @@
     <!-- html2pdf.js for exporting PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -27,7 +28,7 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        sans: ['Poppins', 'sans-serif'],
                     },
                     colors: {
                         brand: {
@@ -45,7 +46,7 @@
     </script>
     <style>
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Poppins', sans-serif;
             background-color: #0f172a;
             color: #f8fafc;
             user-select: none;
@@ -72,6 +73,176 @@
             body { background: white !important; color: black !important; }
             .print-card { box-shadow: none !important; border: none !important; background: white !important; color: black !important; }
         }
+
+        /* Hoja independiente usada únicamente al descargar la cotización. */
+        .pdf-proposal {
+            box-sizing: border-box;
+            width: 8.5in;
+            min-height: 11in;
+            padding: 0.42in 0.48in 0.38in;
+            background: #ffffff;
+            color: #252525;
+            font-family: 'Poppins', Arial, sans-serif;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 60;
+            pointer-events: none;
+            line-height: 1.24;
+        }
+        .pdf-proposal * { box-sizing: border-box; }
+        .pdf-brand { text-align: center; margin-bottom: 26px; }
+        .pdf-brand-logo { display: block; width: 180px; max-height: 112px; margin: 0 auto; object-fit: contain; }
+        .pdf-brand-mark { position: relative; display: inline-block; padding: 8px 13px 4px; }
+        .pdf-brand-mark::before { content: '☀'; position: absolute; right: -1px; top: 0; color: #ffd119; font-size: 35px; z-index: 0; }
+        .pdf-brand-mark::after { content: '🌴'; position: absolute; left: 4px; top: -12px; font-size: 43px; z-index: 0; }
+        .pdf-brand-name { position: relative; z-index: 1; font-family: 'Poppins', sans-serif; font-style: italic; font-weight: 900; font-size: 27px; line-height: .75; color: #e32a2c; text-shadow: 1px 1px 0 #fff; }
+        .pdf-brand-name span { display: block; margin-left: 22px; color: #ef2430; }
+        .pdf-brand-subtitle { position: relative; z-index: 1; margin-top: 8px; color: #00a9d8; font-size: 10px; font-weight: 800; letter-spacing: 2px; }
+        .pdf-title { margin: 0 0 20px; text-align: center; font-size: 21px; font-weight: 900; letter-spacing: -.55px; }
+        .pdf-event-facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 18px; margin: 0 0 18px; padding: 13px 15px; border: 1px solid #e4e7ec; border-radius: 12px; background: #f8fafc; }
+        .pdf-event-fact { display: flex; justify-content: space-between; gap: 10px; font-size: 10px; color: #667085; }
+        .pdf-event-fact strong { color: #1d2939; font-weight: 700; text-align: right; }
+        .pdf-intro { margin: 0 2px 26px; font-size: 14px; line-height: 1.27; }
+        .pdf-intro strong { font-weight: 900; }
+        .pdf-section-title { margin: 0 0 8px; font-size: 14px; font-weight: 400; }
+        .pdf-included { font-weight: 900; }
+        .pdf-package { margin-bottom: 12px; text-align: center; }
+        .pdf-package-header { padding: 7px 12px 6px; background: #ffcb05; color: #fff; font-size: 15px; font-weight: 900; line-height: 1; }
+        .pdf-package-header small { display: block; margin-top: 2px; font-size: 10px; font-weight: 400; }
+        .pdf-price-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+        .pdf-price-grid-single { grid-template-columns: 1fr; }
+        .pdf-price-card { text-align: center; }
+        .pdf-price-hours { padding: 7px 6px; background: #262626; color: #fff; font-size: 13px; font-weight: 800; }
+        .pdf-price-value { padding-top: 9px; color: #111; font-size: 14px; font-weight: 900; }
+        .pdf-comparison { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+        .pdf-comparison .pdf-package { margin-bottom: 0; }
+        .pdf-payment { margin: 43px 2px 0; font-size: 14px; }
+        .pdf-payment p { margin: 0 0 5px; }
+        .pdf-payment ul { margin: 0; padding-left: 21px; }
+        .pdf-payment li { margin: 2px 0; }
+        .pdf-footer { position: absolute; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-around; min-height: 40px; padding: 8px 24px; background: #282828; color: #fff; font-size: 8px; font-weight: 700; }
+        .pdf-footer i { margin-right: 4px; }
+        .pdf-preview-overlay { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 20px; background: rgba(16, 24, 40, .36); }
+        .pdf-preview-dialog { width: min(760px, 100%); max-height: min(740px, calc(100vh - 40px)); display: flex; flex-direction: column; overflow: hidden; border: 1px solid #e4e7ec; border-radius: 20px; background: #fff; box-shadow: 0 24px 72px rgba(16,24,40,.22); }
+        .pdf-preview-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #334155; background: #0f172a; color: #f8fafc; }
+        .pdf-preview-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+        .pdf-preview-action { border: 0; border-radius: 9px; padding: 9px 12px; font: 700 12px 'Poppins', sans-serif; cursor: pointer; }
+        .pdf-preview-download { background: #e11d48; color: #fff; }
+        .pdf-preview-print { background: #fbbf24; color: #0f172a; }
+        .pdf-preview-close { background: #1e293b; color: #e2e8f0; }
+        .pdf-preview-stage { flex: 1; overflow: auto; padding: 24px 18px 12px; background: #f6f8fb; }
+        .pdf-preview-sheet { width: 8.5in; height: 5in; margin: 0 auto -4.95in; transform: scale(.45); transform-origin: top center; box-shadow: 0 10px 30px rgba(16,24,40,.16); }
+        .pdf-preview-sheet .pdf-proposal { position: relative; left: auto; top: auto; z-index: auto; pointer-events: auto; }
+        .pdf-preview-sheet.is-quote-preview { width: min(460px, 100%); height: auto; margin: 0 auto; transform: none; box-shadow: none; }
+        .pdf-preview-sheet.is-quote-preview .pdf-send-quote { width: 100%; min-height: 0; margin: 0; padding: 26px 24px !important; }
+        .pdf-send-quote { box-sizing: border-box; width: 210mm; min-height: 297mm; margin: 0; padding: 11mm 10mm !important; font-family: 'Poppins', sans-serif; background: #fff !important; }
+        @media (max-width: 640px) {
+            .pdf-preview-toolbar { align-items: flex-start; flex-direction: column; }
+            .pdf-preview-actions { justify-content: flex-start; }
+            .pdf-preview-overlay { padding: 10px; }
+            .pdf-preview-dialog { max-height: calc(100vh - 20px); border-radius: 16px; }
+            .pdf-preview-stage { padding: 16px 6px 8px; }
+            .pdf-preview-sheet { transform: scale(.34); height: 3.75in; margin-bottom: -7.25in; }
+            .pdf-preview-sheet.is-quote-preview { width: min(430px, 100%); height: auto; margin: 0 auto; transform: none; }
+        }
+
+        /* Interfaz clara y uniforme para escritorio y móvil. */
+        :root { --ink: #1d2939; --muted: #667085; --line: #e4e7ec; --surface: #ffffff; --canvas: #f6f8fb; --brand: #e8292f; --brand-soft: #fff1f2; }
+        body { background: var(--canvas) !important; color: var(--ink) !important; }
+        .font-mono { font-family: 'Poppins', sans-serif !important; }
+        header.no-print { background: rgba(255,255,255,.94) !important; border-color: var(--line) !important; box-shadow: 0 1px 0 rgba(16,24,40,.04); }
+        header.no-print h1 { color: var(--ink) !important; }
+        header.no-print p { color: var(--muted) !important; }
+        .bg-slate-950 { background-color: #fbfcfe !important; }
+        .bg-slate-900, .bg-slate-900\/90 { background-color: var(--surface) !important; }
+        .bg-slate-950\/40, .bg-slate-950\/60, .bg-slate-950\/70 { background-color: #f8fafc !important; }
+        .bg-slate-800 { background-color: #eef2f6 !important; }
+        .bg-slate-700 { background-color: #e3eaf2 !important; }
+        .border-slate-900, .border-slate-800, .border-slate-800\/80, .border-slate-700 { border-color: var(--line) !important; }
+        .text-slate-100, .text-slate-200 { color: var(--ink) !important; }
+        .text-slate-300 { color: #475467 !important; }
+        .text-slate-400 { color: var(--muted) !important; }
+        .text-slate-500 { color: #98a2b3 !important; }
+        .text-slate-600 { color: #667085 !important; }
+        input, select, textarea { background-color: #fff !important; color: var(--ink) !important; border-color: #d0d5dd !important; box-shadow: 0 1px 2px rgba(16,24,40,.03); }
+        input::placeholder { color: #98a2b3 !important; }
+        select option { background: #fff; color: var(--ink); }
+        .bg-slate-900.border, .bg-slate-900\/90.border, .print-card { box-shadow: 0 6px 18px rgba(16,24,40,.05) !important; }
+        .bg-amber-500\/10 { background-color: #fff7df !important; }
+        .border-amber-500\/20, .border-amber-500\/30 { border-color: #f7cf6e !important; }
+        .text-amber-400 { color: #b77900 !important; }
+        .hover\:bg-slate-800:hover, .hover\:bg-slate-700:hover { background-color: #e7edf4 !important; }
+        #ios-install-banner { background: #fff9eb !important; border-color: #fde7a5 !important; color: #805b00 !important; }
+        #toast { background: #fff !important; color: var(--ink) !important; border-color: var(--line) !important; }
+        .brand-logo-picker { position: relative; display: grid; place-items: center; width: 44px; height: 44px; overflow: hidden; border: 1px solid #f5c2c5; border-radius: 14px; background: #fff5f5; cursor: pointer; box-shadow: 0 4px 10px rgba(232,41,47,.12); }
+        .brand-logo-picker img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+        .brand-logo-picker input { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; }
+        .brand-logo-fallback { color: var(--brand); font-size: 15px; font-weight: 900; letter-spacing: -1px; }
+        .pdf-preview-overlay { background: rgba(246,248,251,.98) !important; }
+        .pdf-preview-toolbar { background: #fff !important; color: var(--ink) !important; border-color: var(--line) !important; box-shadow: 0 2px 12px rgba(16,24,40,.05); }
+        .app-card-heading { letter-spacing: -.02em; }
+        @media (max-width: 640px) {
+            header.no-print > div { height: auto !important; min-height: 64px; padding-top: 10px; padding-bottom: 10px; gap: 10px; flex-wrap: wrap; }
+            header.no-print > div > div:last-child { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+            header.no-print > div > div:last-child button { min-width: 0; padding: 9px 5px !important; font-size: 11px !important; }
+            main { padding: 14px !important; }
+            #tab-editor { gap: 16px !important; }
+            .bg-slate-900.border { border-radius: 16px !important; padding: 16px !important; }
+            .musician-row { align-items: center !important; }
+            .pdf-preview-actions { width: 100%; }
+            .pdf-preview-action { flex: 1; padding: 10px 7px; }
+        }
+
+        /* Sistema visual: jerarquía, ritmo y acciones consistentes. */
+        .quote-workspace-intro { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 26px; border: 1px solid #f0d6d8; border-radius: 22px; background: linear-gradient(112deg, #fff 0%, #fff7f7 100%); box-shadow: 0 8px 28px rgba(145, 28, 35, .06); }
+        .quote-workspace-intro h2 { margin: 4px 0; color: var(--ink); font-size: clamp(20px, 2.6vw, 28px); font-weight: 800; letter-spacing: -.04em; }
+        .quote-workspace-intro p { margin: 0; color: var(--muted); font-size: 13px; }
+        .quote-kicker { display: inline-flex; align-items: center; gap: 7px; color: #b4232b; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+        .quote-kicker::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #e8292f; box-shadow: 0 0 0 4px #ffe8e9; }
+        .workflow-stages { display: grid; grid-template-columns: repeat(4, 1fr); min-width: 390px; overflow: hidden; border: 1px solid #e4e7ec; border-radius: 14px; background: #fff; }
+        .workflow-stage { display: flex; align-items: center; gap: 8px; padding: 12px 11px; border-right: 1px solid #e4e7ec; color: #667085; font-size: 10px; font-weight: 600; line-height: 1.25; }
+        .workflow-stage:last-child { border: 0; }
+        .workflow-stage span { display: grid; place-items: center; width: 21px; height: 21px; flex: 0 0 21px; border-radius: 50%; background: #f2f4f7; color: #667085; font-size: 10px; font-weight: 800; }
+        .workflow-stage.is-active { color: #b4232b; background: #fff8f8; }
+        .workflow-stage.is-active span { background: #e8292f; color: #fff; }
+        .workflow-step-card { position: relative; overflow: hidden; }
+        .workflow-step-card::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 3px; background: linear-gradient(#e8292f, #f6be17); opacity: .8; }
+        .workflow-step-card > div:first-child { position: relative; }
+        .workflow-step-card h2 { color: var(--ink) !important; letter-spacing: -.015em; }
+        .workflow-step-card label { color: #475467 !important; font-size: 10px !important; font-weight: 700 !important; }
+        .quote-preview-column { position: sticky; top: 86px; align-self: start; }
+        .quote-actions { border-radius: 16px !important; box-shadow: 0 8px 24px rgba(16,24,40,.07) !important; }
+        #quote-document { border-radius: 20px !important; box-shadow: 0 14px 38px rgba(16,24,40,.09) !important; }
+        #quote-document .absolute.top-0 { height: 4px !important; background: linear-gradient(90deg, #e8292f, #f6be17, #00a5df) !important; }
+        #quote-document > div:first-of-type { margin-top: 8px; }
+        .quote-document-minimal { padding: 26px 24px !important; background: #fff !important; border-color: #edf0f3 !important; }
+        .quote-document-minimal .quote-document-header { margin: 0 !important; padding: 0 0 20px !important; }
+        .quote-document-brand { margin: 0; color: #b97800 !important; font-size: 12px !important; font-weight: 800 !important; letter-spacing: .06em !important; }
+        .quote-document-logo { display: block; width: 145px; height: 62px; object-fit: contain; object-position: left center; }
+        .quote-document-minimal #doc-quote-number { color: #667085 !important; font-size: 12px !important; }
+        .quote-document-minimal #doc-current-date { color: #98a2b3 !important; font-size: 11px !important; }
+        .quote-document-info { padding: 17px 18px !important; border-color: #e1e6ec !important; border-radius: 15px !important; background: #f8fafc !important; }
+        .quote-document-info > div { min-height: 18px; }
+        .quote-document-info .text-slate-400 { color: #667085 !important; }
+        .quote-document-info .font-medium, .quote-document-info .font-bold { color: #344054 !important; font-weight: 600 !important; }
+        .quote-document-minimal h3 { color: #667085 !important; font-size: 11px !important; letter-spacing: .06em !important; }
+        .quote-document-minimal #doc-band-format, .quote-document-minimal .font-extrabold { color: #1d2939 !important; }
+        .quote-document-minimal .border-t { border-color: #667085 !important; }
+        .quote-document-pricing { border-color: #d8dee8 !important; }
+        .quote-document-minimal #doc-total { color: #b97800 !important; font-size: 27px !important; letter-spacing: -.05em; }
+        .quote-document-deposit { padding: 13px !important; border-color: #f0c558 !important; border-radius: 13px !important; background: #fff7df !important; }
+        .quote-document-deposit .text-amber-300 { color: #c88a00 !important; }
+        .quote-document-minimal .text-slate-500 { color: #98a2b3 !important; }
+        .musician-row { border-radius: 12px !important; transition: border-color .2s, box-shadow .2s, transform .2s !important; }
+        .musician-row:hover { border-color: #f1b7bb !important; box-shadow: 0 4px 12px rgba(16,24,40,.05); }
+        @media (max-width: 1023px) { .quote-preview-column { position: static; } }
+        @media (max-width: 760px) {
+            .quote-workspace-intro { align-items: flex-start; flex-direction: column; padding: 19px; gap: 18px; }
+            .workflow-stages { width: 100%; min-width: 0; }
+            .workflow-stage { padding: 10px 7px; font-size: 9px; }
+            .workflow-stage span { width: 19px; height: 19px; flex-basis: 19px; }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950">
@@ -80,12 +251,14 @@
     <header class="no-print border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-amber-500/20">
-                    <i class="fa-solid fa-microphone-lines"></i>
-                </div>
+                <label class="brand-logo-picker" title="Cargar logo de la orquesta">
+                    <img id="brand-logo-image" src="la-super-tropical-logo.png" alt="Logo de La Súper Tropical">
+                    <span id="brand-logo-fallback" class="brand-logo-fallback hidden">ST</span>
+                    <input id="brand-logo-input" type="file" accept="image/png,image/jpeg,image/webp" onchange="loadBrandLogo(event)">
+                </label>
                 <div>
-                    <h1 class="font-bold text-lg leading-none text-white">CotizaMusic <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-medium">Pro</span></h1>
-                    <p class="text-xs text-slate-400">Cotizador para Orquesta (3 y 4 Integrantes)</p>
+                    <h1 class="font-bold text-lg leading-none text-white">La Súper Tropical <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-medium">Cotizador</span></h1>
+                    <p class="text-xs text-slate-400">Cotizaciones de servicios musicales</p>
                 </div>
             </div>
 
@@ -128,13 +301,28 @@
         </div>
 
         <!-- ================= TAB 1: COTIZADOR ================= -->
-        <div id="tab-editor" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <section id="tab-editor" class="space-y-6">
+            <div class="quote-workspace-intro no-print">
+                <div>
+                    <span class="quote-kicker">Cotización en progreso</span>
+                    <h2>Organiza tu propuesta en un solo lugar</h2>
+                    <p>Completa los datos, ajusta el servicio y revisa el documento antes de enviarlo.</p>
+                </div>
+                <div class="workflow-stages" aria-label="Etapas de la cotización">
+                    <div class="workflow-stage is-active"><span>1</span> Evento</div>
+                    <div class="workflow-stage"><span>2</span> Formato</div>
+                    <div class="workflow-stage"><span>3</span> Costos</div>
+                    <div class="workflow-stage"><span>4</span> Propuesta</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             <!-- Left Panel: Data Inputs & Calculator (7 Cols) -->
             <div class="lg:col-span-7 space-y-5 no-print">
 
                 <!-- Step 1: Información General del Evento -->
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+                <div class="workflow-step-card bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
                     <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
                         <div class="flex items-center space-x-2">
                             <span class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">1</span>
@@ -163,17 +351,32 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Fecha del Evento</label>
-                            <input type="date" id="event-date" onchange="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                            <div class="relative">
+                                <input type="date" id="event-date" onchange="calculateQuote()" onclick="this.showPicker && this.showPicker()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 pr-10 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                <i class="fa-regular fa-calendar-days absolute right-3.5 top-3 text-amber-400 pointer-events-none"></i>
+                            </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Ubicación / Lugar</label>
-                            <input type="text" id="event-location" placeholder="Ej: Club Campestre, Lince" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Distrito del Evento</label>
+                            <select id="event-location" onchange="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                <option value="">Selecciona un distrito</option>
+                                <option value="Ancón">Ancón</option>
+                                <option value="Santa Rosa">Santa Rosa</option>
+                                <option value="Puente Piedra">Puente Piedra</option>
+                                <option value="Ventanilla">Ventanilla</option>
+                                <option value="Mi Perú">Mi Perú</option>
+                                <option value="Carabayllo">Carabayllo</option>
+                                <option value="Comas">Comas</option>
+                                <option value="Los Olivos">Los Olivos</option>
+                                <option value="San Martín de Porres">San Martín de Porres</option>
+                                <option value="Otro distrito / Por confirmar">Otro distrito / Por confirmar</option>
+                            </select>
                         </div>
                     </div>
                 </div>
 
                 <!-- Step 2: Duración y Configuración del Formato -->
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+                <div class="workflow-step-card bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
                     <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
                         <div class="flex items-center space-x-2">
                             <span class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">2</span>
@@ -239,7 +442,7 @@
                 </div>
 
                 <!-- Step 3: Sonido, Movilidad y Adicionales -->
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+                <div class="workflow-step-card bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
                     <div class="flex items-center space-x-2 mb-4 pb-3 border-b border-slate-800">
                         <span class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">3</span>
                         <h2 class="font-bold text-slate-200 text-sm sm:text-base">Equipamiento de Sonido & Movilidad</h2>
@@ -249,9 +452,9 @@
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Equipo de Sonido Preset</label>
                             <select id="sound-preset" onchange="applySoundPreset()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
-                                <option value="custom">Personalizado (Ingresar Monto)</option>
+                                <option value="custom" selected>Personalizado (Ingresar Monto)</option>
                                 <option value="basic">Sonido Básico (~50 pers) - S/ 300</option>
-                                <option value="medium" selected>Sonido Mediano (~150 pers) - S/ 500</option>
+                                <option value="medium">Sonido Mediano (~150 pers) - S/ 500</option>
                                 <option value="pro">Sonido Pro / Escenario (~300+ pers) - S/ 900</option>
                                 <option value="none">Sin Sonido (Cliente lo provee) - S/ 0</option>
                             </select>
@@ -261,7 +464,7 @@
                             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Costo Total Sonido (S/)</label>
                             <div class="relative">
                                 <span class="absolute left-3.5 top-2.5 text-slate-500 font-semibold text-sm">S/</span>
-                                <input type="number" id="sound-cost" value="500" min="0" step="10" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                <input type="number" id="sound-cost" value="" min="0" step="10" placeholder="Ingresa monto" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500 transition">
                             </div>
                         </div>
 
@@ -269,7 +472,7 @@
                             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Costo Movilidad / Traslado (S/)</label>
                             <div class="relative">
                                 <span class="absolute left-3.5 top-2.5 text-slate-500 font-semibold text-sm">S/</span>
-                                <input type="number" id="mobility-cost" value="150" min="0" step="10" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                <input type="number" id="mobility-cost" value="" min="0" step="10" placeholder="Ingresa monto" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500 transition">
                             </div>
                         </div>
 
@@ -277,19 +480,19 @@
                             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Luces / Extras / Efectos (S/)</label>
                             <div class="relative">
                                 <span class="absolute left-3.5 top-2.5 text-slate-500 font-semibold text-sm">S/</span>
-                                <input type="number" id="extras-cost" value="100" min="0" step="10" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                <input type="number" id="extras-cost" value="" min="0" step="10" placeholder="Ingresa monto" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500 transition">
                             </div>
                         </div>
                     </div>
 
                     <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
                         <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Notas del Equipo de Sonido</label>
-                        <input type="text" id="sound-notes" value="Incluye parlantes de alta potencia, micrófonos inalámbricos, consola y operador de sonido." oninput="calculateQuote()" class="w-full bg-transparent text-xs text-slate-300 focus:outline-none">
+                        <input type="text" id="sound-notes" value="Equipo de sonido + implementos para la orquesta" placeholder="Describe el equipo incluido (opcional)" oninput="calculateQuote()" class="w-full bg-transparent text-xs text-slate-300 focus:outline-none">
                     </div>
                 </div>
 
                 <!-- Step 4: Margen Comercial y Ajuste -->
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+                <div class="workflow-step-card bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
                     <div class="flex items-center space-x-2 mb-4 pb-3 border-b border-slate-800">
                         <span class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">4</span>
                         <h2 class="font-bold text-slate-200 text-sm sm:text-base">Ganancia y Precio Final</h2>
@@ -297,9 +500,9 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Ganancia (%)</label>
+                            <label id="profit-margin-label" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Ganancia (%)</label>
                             <div class="relative">
-                                <input type="number" id="profit-margin" value="20" min="0" max="200" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                <input type="number" id="profit-margin" value="0" min="0" max="200" oninput="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500 transition">
                                 <span class="absolute right-3.5 top-2.5 text-slate-500 font-semibold text-sm">%</span>
                             </div>
                         </div>
@@ -318,6 +521,26 @@
                                 <option value="0">Sin Reserva Obligatoria</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div class="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Monto que verá el cliente</label>
+                                <select id="final-price-mode" onchange="toggleFinalPriceMode()" class="w-full bg-white border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                    <option value="auto">Usar precio calculado automáticamente</option>
+                                    <option value="manual">Ingresar monto manual / redondeado</option>
+                                </select>
+                            </div>
+                            <div id="manual-final-price-wrap" class="hidden flex-1">
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Monto final a cotizar (S/)</label>
+                                <div class="relative">
+                                    <span class="absolute left-3.5 top-2.5 text-slate-500 font-semibold text-sm">S/</span>
+                                    <input type="number" id="manual-final-price" min="0" step="1" placeholder="Ej: 1200" oninput="calculateQuote()" class="w-full bg-white border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm font-bold text-slate-100 focus:outline-none focus:border-amber-500 transition">
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-[11px] text-slate-500">El desglose interno se conserva para ti; el cliente verá únicamente el monto final que elijas.</p>
                     </div>
 
                     <!-- Cost Breakdown Summary Pills -->
@@ -344,10 +567,10 @@
             </div>
 
             <!-- Right Panel: Live Quote Preview & Actions (5 Cols) -->
-            <div class="lg:col-span-5 space-y-4">
+            <div class="quote-preview-column lg:col-span-5 space-y-4">
                 
                 <!-- Action Bar above card -->
-                <div class="no-print flex flex-wrap items-center justify-between gap-2 bg-slate-900 border border-slate-800 p-3 rounded-2xl shadow-lg">
+                <div class="quote-actions no-print flex flex-wrap items-center justify-between gap-2 bg-slate-900 border border-slate-800 p-3 rounded-2xl shadow-lg">
                     <span class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cotización Generada
                     </span>
@@ -355,8 +578,8 @@
                         <button onclick="copyWhatsAppMessage()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition flex items-center gap-1.5 shadow-md active:scale-95">
                             <i class="fa-brands fa-whatsapp text-sm"></i> Copiar WA
                         </button>
-                        <button onclick="exportToPDF()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-slate-700 transition flex items-center gap-1.5 active:scale-95">
-                            <i class="fa-solid fa-file-pdf text-red-400"></i> PDF
+                        <button onclick="exportToPDF()" class="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs border border-red-400/20 transition flex items-center gap-1.5 shadow-md active:scale-95" title="Descargar cotización formal en PDF">
+                            <i class="fa-solid fa-file-pdf"></i> Generar PDF
                         </button>
                         <button onclick="saveCurrentQuote()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs transition flex items-center gap-1.5 active:scale-95">
                             <i class="fa-solid fa-bookmark"></i> Guardar
@@ -365,18 +588,12 @@
                 </div>
 
                 <!-- Printable / Exportable Proposal Card -->
-                <div id="quote-document" class="print-card bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-8 shadow-2xl relative overflow-hidden text-slate-100">
-                    
-                    <!-- Decorative Golden Top Stripe -->
-                    <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-600"></div>
-
+                <div id="quote-document" class="quote-document-minimal print-card bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-8 shadow-2xl relative overflow-hidden text-slate-100">
                     <!-- Proposal Header -->
-                    <div class="flex items-start justify-between pb-5 border-b border-slate-800 mt-2">
+                    <div class="quote-document-header flex items-start justify-between pb-5 border-b border-slate-800">
                         <div>
-                            <div class="flex items-center space-x-2 mb-1">
-                                <span class="font-black text-lg sm:text-xl tracking-tight text-white uppercase">PROPUESTA MUSICAL</span>
-                            </div>
-                            <p id="doc-orchestra-name" class="text-xs font-semibold text-amber-400 tracking-wider uppercase">ORQUESTA EN VIVO</p>
+                            <img src="la-super-tropical-logo.png" class="quote-document-logo" alt="La Súper Tropical">
+                            <span id="doc-orchestra-name" class="sr-only">LA SUPER TROPICAL</span>
                         </div>
                         <div class="text-right">
                             <span id="doc-quote-number" class="text-xs font-mono font-bold text-slate-400 block">COT-2026</span>
@@ -385,8 +602,8 @@
                     </div>
 
                     <!-- Client & Event Info Block -->
-                    <div class="my-5 bg-slate-950/70 p-3.5 sm:p-4 rounded-xl border border-slate-800/80 space-y-2">
-                        <div class="flex justify-between items-center text-xs">
+                    <div class="quote-document-info my-5 bg-slate-950/70 p-3.5 sm:p-4 rounded-xl border border-slate-800/80 space-y-2">
+                        <div id="doc-client-row" class="flex justify-between items-center text-xs hidden">
                             <span class="text-slate-400">Cliente:</span>
                             <span id="doc-client" class="font-bold text-slate-100">Carlos Mendoza</span>
                         </div>
@@ -402,6 +619,10 @@
                             <span class="text-slate-400">Ubicación:</span>
                             <span id="doc-location" class="font-medium text-slate-200">Lugar Por Confirmar</span>
                         </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">Duración del Show:</span>
+                            <span id="doc-duration" class="font-medium text-slate-200">5 horas</span>
+                        </div>
                     </div>
 
                     <!-- Included Services List -->
@@ -412,10 +633,10 @@
                         <div class="flex items-start justify-between">
                             <div class="space-y-0.5 w-full">
                                 <p id="doc-band-format" class="text-sm font-bold text-slate-100">Orquesta de 3 Integrantes</p>
-                                <p id="doc-hours-text" class="text-xs text-slate-400">Show en vivo de 5 horas continuas / intercaladas</p>
                                 <div id="doc-musicians-list" class="text-[11px] text-slate-300 pt-1 space-y-0.5">
                                     <!-- Simple summary of performance format -->
                                 </div>
+                                <p class="mt-2 text-[11px] leading-relaxed text-slate-400"><strong class="text-slate-300">Repertorio variado:</strong> cumbia, salsa, merengue, huayno, guarachas, chicha y más.</p>
                             </div>
                         </div>
 
@@ -437,7 +658,7 @@
                     </div>
 
                     <!-- Pricing Summary Section -->
-                    <div class="border-t-2 border-dashed border-slate-800 pt-3.5 space-y-2">
+                    <div class="quote-document-pricing border-t-2 border-dashed border-slate-800 pt-3.5 space-y-2">
                         <div id="doc-comparison-block" class="hidden space-y-2 mb-3">
                             <div class="flex justify-between items-center text-[11px] text-slate-400">
                                 <span>Cotizaciones separadas</span>
@@ -462,21 +683,18 @@
                     </div>
 
                     <!-- Deposit and Payment Terms -->
-                    <div id="doc-deposit-block" class="mt-5 bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl text-center space-y-0.5">
+                    <div id="doc-deposit-block" class="quote-document-deposit mt-5 bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl text-center space-y-0.5">
                         <p class="text-xs text-amber-300 font-semibold">
                             <i class="fa-solid fa-shield-halved mr-1"></i> Reserva de Fecha con el <span id="doc-deposit-percent">50%</span> (<span id="doc-deposit-amount" class="font-bold">S/ 0.00</span>)
                         </p>
                         <p class="text-[10px] sm:text-[11px] text-slate-400">El saldo se cancela el mismo día antes de iniciar la presentación.</p>
                     </div>
 
-                    <!-- Footer & Guarantee -->
-                    <div class="mt-5 text-center text-[10px] text-slate-500 space-y-0.5">
-                        <p>Cotización válida por 7 días calendario • Puntualidad y Garantía</p>
-                    </div>
                 </div>
 
             </div>
-        </div>
+            </div>
+        </section>
 
         <!-- ================= TAB 2: PRESETS & DATA MANAGEMENT ================= -->
         <div id="tab-presets" class="hidden space-y-6">
@@ -504,11 +722,11 @@
                         <div class="grid grid-cols-2 gap-3 pt-1">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-400 mb-1">Sonido Base (S/)</label>
-                                <input type="number" id="default-sound-cost" value="500" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                                <input type="number" id="default-sound-cost" value="" placeholder="Sin precio base" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-400 mb-1">Movilidad Base (S/)</label>
-                                <input type="number" id="default-mobility-cost" value="150" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                                <input type="number" id="default-mobility-cost" value="" placeholder="Sin precio base" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
                             </div>
                         </div>
                     </div>
@@ -574,14 +792,16 @@
     <script>
         // Global state store
         let musicians = [
-            { id: 1, role: "Integrante 1", hourlyCost: 80, active: true },
-            { id: 2, role: "Integrante 2", hourlyCost: 80, active: true },
-            { id: 3, role: "Integrante 3", hourlyCost: 70, active: true }
+            { id: 1, role: "Cantante hombre", hourlyCost: 0, active: true },
+            { id: 2, role: "Cantante mujer", hourlyCost: 0, active: true },
+            { id: 3, role: "Animador cantante o animador", hourlyCost: 0, active: true }
         ];
 
         let quoteHistory = [];
         let deferredPrompt = null;
         let lastQuoteResult = null;
+        let activePdfProposal = null;
+        let activePdfFilename = 'Cotizacion.pdf';
 
         // Sound preset configurations
         const soundPresets = {
@@ -591,17 +811,47 @@
             none: { cost: 0, notes: "" }
         };
 
+        function getBrandLogoUrl() {
+            return localStorage.getItem('cotiza_music_brand_logo') || 'la-super-tropical-logo.png';
+        }
+
+        function applyBrandLogo(dataUrl) {
+            const image = document.getElementById('brand-logo-image');
+            const fallback = document.getElementById('brand-logo-fallback');
+            if (!image || !fallback) return;
+            const logoUrl = dataUrl || getBrandLogoUrl();
+            image.classList.toggle('hidden', !logoUrl);
+            fallback.classList.toggle('hidden', Boolean(logoUrl));
+            image.src = logoUrl;
+            document.querySelectorAll('.brand-app-icon').forEach(icon => icon.href = logoUrl);
+        }
+
+        function loadBrandLogo(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                localStorage.setItem('cotiza_music_brand_logo', reader.result);
+                applyBrandLogo(reader.result);
+                showToast("Logo actualizado para el cotizador y el PDF.", "success");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function getPdfBrandMarkup() {
+            const logo = getBrandLogoUrl();
+            if (logo) return `<img class="pdf-brand-logo" src="${pdfSafe(logo)}" alt="Logo de La Súper Tropical">`;
+            return `<div class="pdf-brand-mark"><div class="pdf-brand-name">La Súper<span>Tropical</span></div><div class="pdf-brand-subtitle">ORQUESTA EN VIVO</div></div>`;
+        }
+
         // On Page Load Initialization
         window.onload = function() {
             registerPwaAndServiceWorker();
             loadSavedData();
+            applyBrandLogo();
             renderMusicians();
             calculateQuote();
             
-            // Set default date to 15 days from now
-            const futureDate = new Date();
-            futureDate.setDate(futureDate.getDate() + 15);
-            document.getElementById('event-date').value = futureDate.toISOString().split('T')[0];
             document.getElementById('doc-current-date').textContent = new Date().toLocaleDateString('es-ES');
 
             // Hide iOS banner if standalone or Android
@@ -665,7 +915,7 @@
 
                     <div class="flex items-center space-x-1 bg-slate-900 px-2 py-1 rounded-lg border border-slate-800 shrink-0">
                         <span class="text-[11px] text-slate-500 font-semibold">S/</span>
-                        <input type="number" value="${musician.hourlyCost}" min="0" step="5" oninput="updateMusicianCost(${musician.id}, this.value, this)" 
+                        <input type="number" value="${musician.hourlyCost || ''}" min="0" step="5" oninput="updateMusicianCost(${musician.id}, this.value, this)" 
                                class="w-14 sm:w-16 bg-transparent text-xs font-bold text-amber-400 text-right focus:outline-none">
                         <span class="text-[10px] text-slate-500">${isHourly ? '/h' : 'fijo'}</span>
                     </div>
@@ -729,7 +979,7 @@
             musicians.push({
                 id: newId,
                 role: `Integrante ${musicians.length + 1}`,
-                hourlyCost: 70,
+                hourlyCost: 0,
                 active: true
             });
             renderMusicians();
@@ -742,7 +992,7 @@
                 musicians.push({
                     id: newId,
                     role: `Integrante ${musicians.length + 1}`,
-                    hourlyCost: musicians.length < 2 ? 80 : 70,
+                    hourlyCost: 0,
                     active: true
                 });
             }
@@ -781,16 +1031,16 @@
             if (quoteModeSelect) quoteModeSelect.value = 'single';
             if (num === 3) {
                 musicians = [
-                    { id: 1, role: "Integrante 1", hourlyCost: 80, active: true },
-                    { id: 2, role: "Integrante 2", hourlyCost: 80, active: true },
-                    { id: 3, role: "Integrante 3", hourlyCost: 70, active: true }
+                    { id: 1, role: "Cantante hombre", hourlyCost: 0, active: true },
+                    { id: 2, role: "Cantante mujer", hourlyCost: 0, active: true },
+                    { id: 3, role: "Animador cantante o animador", hourlyCost: 0, active: true }
                 ];
             } else {
                 musicians = [
-                    { id: 1, role: "Integrante 1", hourlyCost: 80, active: true },
-                    { id: 2, role: "Integrante 2", hourlyCost: 80, active: true },
-                    { id: 3, role: "Integrante 3", hourlyCost: 70, active: true },
-                    { id: 4, role: "Integrante 4", hourlyCost: 70, active: true }
+                    { id: 1, role: "Cantante hombre", hourlyCost: 0, active: true },
+                    { id: 2, role: "Cantante mujer", hourlyCost: 0, active: true },
+                    { id: 3, role: "Animador cantante o animador", hourlyCost: 0, active: true },
+                    { id: 4, role: "Integrante 4", hourlyCost: 0, active: true }
                 ];
             }
             renderMusicians();
@@ -824,7 +1074,7 @@
                 selected.push({
                     id: 100 + selected.length,
                     role: `Integrante ${selected.length + 1}`,
-                    hourlyCost: selected.length < 2 ? 80 : 70,
+                    hourlyCost: 0,
                     active: true
                 });
             }
@@ -865,6 +1115,25 @@
             calculateQuote();
         }
 
+        function toggleFinalPriceMode() {
+            const isManual = document.getElementById('final-price-mode').value === 'manual';
+            const profitInput = document.getElementById('profit-margin');
+            if (isManual && document.getElementById('quote-mode').value === 'compare') {
+                document.getElementById('quote-mode').value = 'single';
+                showToast("El monto manual se aplica a una cotización individual.", "info");
+            }
+            if (isManual && !profitInput.readOnly) profitInput.dataset.automaticMargin = profitInput.value;
+            if (!isManual && profitInput.dataset.automaticMargin !== undefined) {
+                profitInput.value = profitInput.dataset.automaticMargin;
+                delete profitInput.dataset.automaticMargin;
+            }
+            profitInput.readOnly = isManual;
+            profitInput.classList.toggle('opacity-70', isManual);
+            document.getElementById('profit-margin-label').textContent = isManual ? 'Ganancia real (%)' : 'Ganancia (%)';
+            document.getElementById('manual-final-price-wrap').classList.toggle('hidden', !isManual);
+            calculateQuote();
+        }
+
         // Core Calculation Engine
         function calculateQuote() {
             const hours = parseFloat(document.getElementById('event-hours').value) || 0;
@@ -876,6 +1145,8 @@
             const profitMargin = parseFloat(document.getElementById('profit-margin').value) || 0;
             const discount = parseFloat(document.getElementById('discount-amount').value) || 0;
             const depositPercent = parseInt(document.getElementById('deposit-percent').value) || 50;
+            const finalPriceMode = document.getElementById('final-price-mode').value;
+            const manualFinalPrice = parseFloat(document.getElementById('manual-final-price').value) || 0;
 
             const activeMusicians = musicians.filter(m => m.active);
             const calculationOptions = { hours, rateType, soundCost, mobilityCost, extrasCost, profitMargin, discount, depositPercent };
@@ -886,8 +1157,17 @@
             const equipmentAndLogisticsCost = displayTotals.equipmentAndLogisticsCost;
             const totalBaseCost = displayTotals.totalBaseCost;
             const subtotalWithMargin = displayTotals.subtotalWithMargin;
-            const finalClientPrice = displayTotals.finalClientPrice;
-            const depositAmount = displayTotals.depositAmount;
+            const automaticFinalPrice = displayTotals.finalClientPrice;
+            const useManualFinalPrice = quoteMode === 'single' && finalPriceMode === 'manual' && manualFinalPrice > 0;
+            const finalClientPrice = useManualFinalPrice ? manualFinalPrice : automaticFinalPrice;
+            const depositAmount = finalClientPrice * (depositPercent / 100);
+            const actualProfitMargin = totalBaseCost > 0 ? ((finalClientPrice - totalBaseCost) / totalBaseCost) * 100 : 0;
+
+            if (useManualFinalPrice) {
+                const profitInput = document.getElementById('profit-margin');
+                profitInput.value = actualProfitMargin.toFixed(2);
+                document.getElementById('profit-margin-label').textContent = 'Ganancia real (%)';
+            }
 
             lastQuoteResult = {
                 mode: quoteMode,
@@ -902,20 +1182,21 @@
             document.getElementById('summary-final-price').textContent = `S/ ${finalClientPrice.toFixed(2)}`;
 
             // Update Preview Document UI in Real-Time
-            const clientName = document.getElementById('client-name').value || "Cliente";
+            const clientName = document.getElementById('client-name').value.trim();
             const eventType = document.getElementById('event-type').value;
             const eventDate = document.getElementById('event-date').value;
             const location = document.getElementById('event-location').value || "Lugar Por Confirmar";
             const orchestraName = document.getElementById('preset-orchestra-name').value || "La Super Tropical";
 
             document.getElementById('doc-client').textContent = clientName;
+            document.getElementById('doc-client-row').classList.toggle('hidden', !clientName);
             document.getElementById('doc-event').textContent = eventType;
             document.getElementById('doc-date').textContent = eventDate ? formatDate(eventDate) : "Por definir";
             document.getElementById('doc-location').textContent = location;
+            document.getElementById('doc-duration').textContent = `${hours} hora${hours === 1 ? '' : 's'}`;
             document.getElementById('doc-orchestra-name').textContent = orchestraName.toUpperCase();
 
             document.getElementById('doc-band-format').textContent = quoteMode === 'compare' ? 'Opciones: Orquesta de 3 y 4 Integrantes' : `Orquesta de ${activeMusicians.length} Integrantes`;
-            document.getElementById('doc-hours-text').textContent = `Show musical en vivo de ${hours} hora(s) continuas/intercaladas`;
 
             const musListEl = document.getElementById('doc-musicians-list');
             musListEl.innerHTML = quoteMode === 'compare'
@@ -927,10 +1208,10 @@
             document.getElementById('doc-sound-detail').textContent = soundCost > 0 ? soundNotes : "";
             soundBlock.classList.toggle('hidden', soundCost <= 0 || !soundNotes);
 
-            document.getElementById('doc-subtotal').textContent = `S/ ${subtotalWithMargin.toFixed(2)}`;
+            document.getElementById('doc-subtotal').textContent = `S/ ${finalClientPrice.toFixed(2)}`;
             
             const discountRow = document.getElementById('doc-discount-row');
-            if (discount > 0) {
+            if (discount > 0 && !useManualFinalPrice) {
                 discountRow.classList.remove('hidden');
                 document.getElementById('doc-discount').textContent = `-S/ ${discount.toFixed(2)}`;
             } else {
@@ -1004,6 +1285,13 @@
             if (savedMusicians) {
                 try { musicians = JSON.parse(savedMusicians); } catch(e){}
             }
+            const defaultRoles = ["Cantante hombre", "Cantante mujer", "Animador cantante o animador"];
+            musicians = musicians.map((musician, index) => {
+                const genericRole = `Integrante ${index + 1}`;
+                return defaultRoles[index] && musician.role === genericRole
+                    ? { ...musician, role: defaultRoles[index] }
+                    : musician;
+            });
             const savedHistory = localStorage.getItem('cotiza_music_history');
             if (savedHistory) {
                 try { quoteHistory = JSON.parse(savedHistory); } catch(e){}
@@ -1016,7 +1304,6 @@
             if (savedSound) {
                 document.getElementById('sound-cost').value = savedSound;
                 document.getElementById('default-sound-cost').value = savedSound;
-                if (Number(savedSound) <= 0) document.getElementById('sound-notes').value = "";
             }
             const savedMobility = localStorage.getItem('cotiza_music_default_mobility');
             if (savedMobility) {
@@ -1072,32 +1359,126 @@
             }
             document.body.removeChild(textArea);
         }
-        // PDF Export
-        function exportToPDF() {
-            const element = document.getElementById('quote-document');
-            showToast("Generando documento PDF...", "info");
+        // PDF Export - a clean, client-facing layout inspired by the supplied proposal.
+        function formatLongDate(dateStr) {
+            if (!dateStr) return 'POR DEFINIR';
+            const [year, month, day] = dateStr.split('-');
+            const months = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+            return `${parseInt(day, 10)} DE ${months[parseInt(month, 10) - 1]} DEL ${year}`;
+        }
 
-            const opt = {
-                margin:       [0.3, 0.3, 0.3, 0.3],
-                filename:     `Cotizacion_${(document.getElementById('client-name').value || 'Cliente').replace(/\s+/g, '_')}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0f172a' },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
+        function pdfSafe(value) {
+            return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                showToast("PDF guardado con éxito", "success");
-            }).catch(err => {
-                console.error(err);
-                showToast("Error al generar PDF", "error");
+        function getPdfTotals(hours, activeMusicians) {
+            return calculateTotalsFor(activeMusicians, {
+                hours,
+                rateType: document.getElementById('rate-calculation-type').value,
+                soundCost: parseFloat(document.getElementById('sound-cost').value) || 0,
+                mobilityCost: parseFloat(document.getElementById('mobility-cost').value) || 0,
+                extrasCost: parseFloat(document.getElementById('extras-cost').value) || 0,
+                profitMargin: parseFloat(document.getElementById('profit-margin').value) || 0,
+                discount: parseFloat(document.getElementById('discount-amount').value) || 0,
+                depositPercent: parseInt(document.getElementById('deposit-percent').value, 10) || 50
             });
         }
 
+        function createPdfPackage(title, subtitle, priceCards) {
+            return `
+                <section class="pdf-package">
+                    <div class="pdf-package-header">${pdfSafe(title)}<small>${pdfSafe(subtitle)}</small></div>
+                    <div class="pdf-price-grid ${priceCards.length === 1 ? 'pdf-price-grid-single' : ''}">
+                        ${priceCards.map(card => `
+                            <div class="pdf-price-card">
+                                <div class="pdf-price-hours">${pdfSafe(card.label)}</div>
+                                <div class="pdf-price-value">S/${card.value.toFixed(2)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </section>`;
+        }
+
+        function openPrintFallback(proposal) {
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                showToast("No se pudo abrir la vista de impresión. Permite las ventanas emergentes.", "error");
+                return;
+            }
+            // El motor html2canvas puede exportar nodos trasladados al modal como una
+            // página vacía. Imprimir una copia aislada conserva exactamente el diseño
+            // que se está previsualizando y permite guardarlo como PDF desde el diálogo.
+            const printableProposal = proposal.cloneNode(true);
+            printableProposal.removeAttribute('style');
+            printableProposal.querySelectorAll('img[src]').forEach(image => {
+                const source = image.getAttribute('src');
+                if (source) image.src = new URL(source, window.location.href).href;
+            });
+            const pageStyles = Array.from(document.querySelectorAll('style')).map(style => style.textContent).join('\n');
+            printWindow.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${activePdfFilename || 'Cotización'}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>${pageStyles}@page { size: A4; margin: 0; } html, body { margin: 0; padding: 0; background: #fff; } body { display: flex; justify-content: center; } .pdf-proposal { position: relative !important; left: auto !important; top: auto !important; z-index: auto !important; pointer-events: auto !important; } .pdf-send-quote { width: 210mm !important; min-height: 297mm !important; margin: 0 auto !important; transform: none !important; }</style></head><body>${printableProposal.outerHTML}</body></html>`);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => printWindow.print(), 600);
+        }
+
+        function closePdfPreview() {
+            document.getElementById('pdf-preview-modal')?.remove();
+            activePdfProposal = null;
+        }
+
+        function openPdfPreview(proposal, filename) {
+            closePdfPreview();
+            activePdfProposal = proposal;
+            activePdfFilename = filename;
+
+            const modal = document.createElement('div');
+            modal.id = 'pdf-preview-modal';
+            modal.className = 'pdf-preview-overlay';
+            modal.innerHTML = `
+                <div class="pdf-preview-dialog" role="dialog" aria-modal="true" aria-label="Vista previa de la cotización">
+                    <div class="pdf-preview-toolbar">
+                        <div>
+                            <p style="margin:0;font-size:14px;font-weight:800">Vista previa de la cotización</p>
+                            <p style="margin:3px 0 0;font-size:11px;color:#94a3b8">Revisa el documento antes de descargarlo.</p>
+                        </div>
+                        <div class="pdf-preview-actions">
+                            <button type="button" class="pdf-preview-action pdf-preview-download" onclick="downloadPreviewPDF()"><i class="fa-solid fa-file-arrow-down"></i> Guardar como PDF</button>
+                            <button type="button" class="pdf-preview-action pdf-preview-close" onclick="closePdfPreview()">Cerrar</button>
+                        </div>
+                    </div>
+                    <div class="pdf-preview-stage"><div class="pdf-preview-sheet"></div></div>
+                </div>
+                `;
+            const previewSheet = modal.querySelector('.pdf-preview-sheet');
+            if (proposal.classList.contains('pdf-send-quote')) previewSheet.classList.add('is-quote-preview');
+            previewSheet.appendChild(proposal);
+            document.body.appendChild(modal);
+        }
+
+        function printPreviewPDF() {
+            if (activePdfProposal) openPrintFallback(activePdfProposal);
+        }
+
+        function downloadPreviewPDF() {
+            if (!activePdfProposal) return;
+            openPrintFallback(activePdfProposal);
+        }
+
+        function exportToPDF() {
+            calculateQuote();
+            saveCurrentQuote({ silent: true });
+            const client = document.getElementById('client-name').value.trim();
+            const proposal = document.getElementById('quote-document').cloneNode(true);
+            proposal.classList.add('pdf-send-quote');
+            const filename = `Cotizacion_${(client || 'Cliente').replace(/[^a-z0-9]/gi, '_')}.pdf`;
+            openPdfPreview(proposal, filename);
+        }
+
         // Save Quote to Local History
-        function saveCurrentQuote() {
+        function saveCurrentQuote({ silent = false } = {}) {
             const quoteData = {
                 id: Date.now(),
-                dateSaved: new Date().toLocaleDateString('es-ES'),
+                dateSaved: new Date().toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' }),
                 clientName: document.getElementById('client-name').value || "Cliente Sin Nombre",
                 eventType: document.getElementById('event-type').value,
                 hours: document.getElementById('event-hours').value,
@@ -1115,17 +1496,27 @@
                     extrasCost: document.getElementById('extras-cost').value,
                     profitMargin: document.getElementById('profit-margin').value,
                     discount: document.getElementById('discount-amount').value,
+                    finalPriceMode: document.getElementById('final-price-mode').value,
+                    manualFinalPrice: document.getElementById('manual-final-price').value,
                     soundNotes: document.getElementById('sound-notes').value,
                     clientName: document.getElementById('client-name').value,
                     eventType: document.getElementById('event-type').value,
                     eventDate: document.getElementById('event-date').value,
-                    eventLocation: document.getElementById('event-location').value
+                    eventLocation: document.getElementById('event-location').value,
+                    depositPercent: document.getElementById('deposit-percent').value
                 }
             };
 
+            const alreadySaved = quoteHistory.some(item => JSON.stringify(item.state) === JSON.stringify(quoteData.state));
+            if (alreadySaved) {
+                if (!silent) showToast("Esta cotización ya está guardada en el historial", "info");
+                return false;
+            }
+
             quoteHistory.unshift(quoteData);
             localStorage.setItem('cotiza_music_history', JSON.stringify(quoteHistory));
-            showToast("Cotización guardada en tu historial", "success");
+            if (!silent) showToast("Cotización guardada en tu historial", "success");
+            return true;
         }
 
         function renderHistory() {
@@ -1179,13 +1570,17 @@
             document.getElementById('extras-cost').value = s.extrasCost;
             document.getElementById('profit-margin').value = s.profitMargin;
             document.getElementById('discount-amount').value = s.discount;
+            document.getElementById('final-price-mode').value = s.finalPriceMode || 'auto';
+            document.getElementById('manual-final-price').value = s.manualFinalPrice || '';
             document.getElementById('sound-notes').value = s.soundNotes;
             document.getElementById('client-name').value = s.clientName;
             document.getElementById('event-type').value = s.eventType;
             document.getElementById('event-date').value = s.eventDate;
             document.getElementById('event-location').value = s.eventLocation;
+            document.getElementById('deposit-percent').value = s.depositPercent || '50';
 
             renderMusicians();
+            toggleFinalPriceMode();
             calculateQuote();
             switchTab('editor');
             showToast("Cotización restaurada", "success");
@@ -1209,7 +1604,7 @@
 
         function loadDemoData() {
             document.getElementById('client-name').value = "Familia Rodríguez";
-            document.getElementById('event-location').value = "Hacienda San José, Pachacámac";
+            document.getElementById('event-location').value = "Ancón";
             document.getElementById('event-hours').value = 5;
             setQuickPreset(4);
             showToast("Ejemplo cargado", "info");
@@ -1285,6 +1680,7 @@
 
         // PWA Dynamic Web Manifest & Service Worker Registration
         function registerPwaAndServiceWorker() {
+            const brandIcon = getBrandLogoUrl();
             const manifest = {
                 name: "CotizaMusic Pro",
                 short_name: "CotizaMusic",
@@ -1295,7 +1691,7 @@
                 orientation: "portrait",
                 icons: [
                     {
-                        src: "https://cdn-icons-png.flaticon.com/512/3293/3293810.png",
+                        src: brandIcon,
                         sizes: "512x512",
                         type: "image/png"
                     }
